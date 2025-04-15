@@ -16,7 +16,11 @@ def index():
     return render_template('index.html')
 
 
-
+# *** Admin Page ***
+@app.route('/admin')
+def admin():
+        return render_template('admin.html')
+    
 
 # *** Run & Debug ***
 if __name__ == '__main__':
