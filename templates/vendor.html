@@ -10,13 +10,170 @@
         background-position: center;
     } 
 
-    
+    /* PLANS */
+    .plans-section {
+        padding-top: 80px;
+        /* background: #f4f4f4; */
+        font-family: 'Lato', sans-serif;
+        margin-bottom: 80px;
+    }
+
+    .plans-showcase {
+        display: flex;
+        justify-content: center;
+        max-width: 1080px;
+        margin: 0 auto;
+    }
+
+    .plan-items {
+        width: 31%;
+        margin: 1% auto;
+        border-radius: 5px;
+        font-size: 16px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        /* transition: box-shadow 0.3s ease; */
+    }
+
+
+    .plan-items div {
+        /* background: white; */
+        border-bottom: 1px solid #f4f4f4;
+        padding: 15px;
+    } 
+
+    .plan-items div:first-child {
+        background: #fcfcfc;
+    } */
+
+    .plan-items h3 {
+        text-transform: uppercase;
+    }
+
+    .price-plan {
+        color: #e67e22;
+        font-weight: 200;
+    }
+
+    .price {
+        font-size: 300%;
+    }
+
+    .plan-list {
+        list-style: none;
+    }
+
+    .plan-list ion-icon {
+        color: #e67e22;
+        font-size: 70%;
+        margin: 5px;
+        vertical-align: middle;
+    }
+
+    .sign-up {
+        font-family: 'Lato', sans-serif;
+        display: block;
+        border: 1px solid #e67e22;
+        background: none;
+        padding: 10px 30px;
+        border-radius: 50px;
+        color: #e67e22;
+        margin: 0 auto;
+    }
+    .sign-up:hover{
+        background-color: #e67e22;
+        color: white;
+        transition: background-color 0.2s;
+    }
+    .sign-up-active {
+        background: #e67e22;
+        color: white;
+    }
     </style>
 
     <div>
         <div class="vendor_container">
             <h1>Welcome Vender</h1>
         </div>
-       
+        <section class="plans-section">
+            <h2>Start Eating Healthy Today</h2>
+            <div class="plans-showcase">
+                <div class="plan-items">
+                    <div class="plan-item-section">
+                        <p class="price-plan"><span class="price">Add Edit & Manage Products</span></p>
+                        <p></p>
+                    </div>
+                    <div>
+                        <ul class="plan-list">
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                1 meal every day</li>
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                Order 24/7</li>
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                Access to newest creations</li>
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                Free delivery</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <button class="sign-up sign-up-active">Sign up now</button>
+                    </div>
+                </div>
+                <div class="plan-items">
+                    <div class="plan-item-section">
+                        <p class="price-plan"><span class="price">Update Price & Discounts</span></p>
+                    </div>
+                    <div>
+                        <ul class="plan-list">
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                1 mean 10 days/month</li>
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                Order 24/7</li>
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                Access to newest creations</li>
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                Free delivery</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <button class="sign-up">Sign up now</button>
+                    </div>
+                </div>
+                <div class="plan-items">
+                    <div class="plan-item-section">
+                        <p class="price-plan"><span class="price">Chat With Customers</span></p>
+                        <p><br></p>
+                    </div>
+                    <div>
+                        <ul class="plan-list">
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                1 meal</li>
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline">
+                                    <ion-icon name="close-outline"></ion-icon></ion-icon>
+                                Order from 8 am to 12 pm</li>
+                            <li class="plan-list-item"> 
+                                <ion-icon name="close-outline"></ion-icon>
+                            </li>
+                            <li class="plan-list-item">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                Free delivery</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <button class="sign-up">Sign up now</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
+
     {% endblock%}
