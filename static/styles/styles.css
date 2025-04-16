@@ -299,3 +299,42 @@ body {
       width: 50px;
       margin: 10px auto;
     }
+
+    /* admin.html */
+      .ab{
+        background: var(--Celadon--);
+      }
+      .admin {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        flex-direction: column;
+      }
+      .admin h1 {
+        color: var(--lt-Violet--);
+        margin: 15px;
+        
+      }
+      .products {
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+        height: 100%;
+        background: var(--Violet--);
+        border: var(--lt-Violet--)solid 1px;
+        box-shadow: 0px 0px 1.5px 1.5px var(--lt-Violet--);
+        border-radius: 2px;
+        margin-bottom: 20px;
+      }
+      .requests {
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+        height: 100%;
+        background: var(--Violet--);
+        border: var(--lt-Violet--) solid 1px;
+        box-shadow: 0px 0px 1.5px 1.5px var(--lt-Violet--);
+        border-radius: 2px;
+        margin-bottom: 20px;
+      }

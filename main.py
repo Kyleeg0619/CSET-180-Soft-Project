@@ -26,7 +26,7 @@ def register():
         firstName = request.form['first_name']
         lastName = request.form['last_name']
         hashed_password = generate_password_hash(password)
-
+        
         with engine.begin() as conn:
             existing = conn.execute(text('SELECT * FROM users WHERE username = :username OR email = :email'),{'username':username, 'email':email}).fetchone()
 
@@ -71,6 +71,11 @@ def login():
                     msg = 'Incorrect username, email or password.'
 
     return render_template('login.html', msg=msg, account=account)
+  
+# *** Admin Page ***
+@app.route('/admin')
+def admin():
+        return render_template('admin.html')
 
 @app.route('/vendor')
 def vendor(): 
