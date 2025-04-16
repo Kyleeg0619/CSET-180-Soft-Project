@@ -218,6 +218,87 @@ body {
       }
     }
 
+    /* Register.html */
+    h1, h2, #register, #login, .select, select {
+      font-family: TitleFont, Arial, Helvetica, sans-serif;
+    }
+
+    .login_register {
+      position: relative;
+      align-self: center;
+      align-content: center;
+      justify-self: center;
+      min-width: 600px;
+      border: solid 3px var(--Violet--);
+      border-radius: 50px;
+      background: var(--Celadon--);
+      min-height: 500px;
+      color: var(--lt-Violet--);
+      font-family: BodyFont, Arial, Helvetica, sans-serif;
+      padding: 20px;
+    }
+
+    #butterfly {
+      position: absolute;
+      width: 170px;
+      top: -70px;
+      left: -60px;
+    }
+
+    #flower {
+      position: absolute;
+      width: 120px;
+      bottom: -50px;
+      right: -50px;
+    }
+
+    .select {
+      display: block;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .select select {
+      padding: 10px;
+      border: solid 2px var(--Violet--);
+      border-radius: 20px;
+    }
+
+    .login_register input {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      border: solid 2px var(--Violet--);
+      border-radius: 20px;
+      font-family: BodyFont, Arial, Helvetica, sans-serif;
+      font-size: 1rem;
+    }
+
+    #register {
+      background: var(--Violet--);
+      color: var(--Celadon--);
+      padding: 15px;
+      border-radius: 50px;
+    }
+
+    #login {
+      display: block;
+      color: var(--lt-Violet--);
+      padding: 15px;
+      border-radius: 50px;
+      border: solid 2px var(--lt-Violet--);
+      text-decoration: none;
+      font-weight: bold;
+      margin: 0 auto;
+      width: max-content;
+    }
+
+    .home-spacer {
+      border: solid 3px var(--Violet--);
+      border-radius: 30px;
+      width: 50px;
+      margin: 10px auto;
+    }
 
     /* admin.html */
       .ab{

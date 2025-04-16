@@ -1,4 +1,87 @@
+<style>
+    .hero-text-box {
+        text-align: center;
+        color: var(--Violet--);
+        font-size: 150%;
+        font-weight: 300;
+        background-image: url("https://i.pinimg.com/736x/0b/61/f1/0b61f1f87e16785ea935dcf261cb80b3.jpg");
+        background-size: cover;
+        background-position: center;
+        height: 100%;
+       
+
+        
+    }
+    
+    /* Section 1 */
+    .hero-intro {
+        padding: 30px;
+
+        /* display: flex; */
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 100px;
+        
+    }
+    .hero-welcome {
+        margin-top: auto;
+        padding: 60px 20px;
+        /* background-color: #f8f8f8;  */
+    }
+    a {
+        color: var(--Violet--);
+
+    }
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    .scroll-btn {
+        margin-top: 20px;
+    }
+    /* button -login-register */
+    .btn:link, .btn:visited, input[type=submit]{
+    display: inline-block;
+    padding: 10px 30px;
+    font-weight: 300;
+    text-decoration: none;
+    border-radius: 200px;
+    transition: background-color 0.2s, border 0.2s, color 0.2s;
+}
+    .btn-ghost:link,
+    .btn-ghost:visited {
+        border: 3px solid var(--Violet--);
+        color: var(--Violet--);
+    }
+    .btn-ghost:hover,
+    .btn-ghost:active {
+        /* border: 1px solid #e67e27; */
+        color: #fff;
+}
+    </style>
+    
+</style>
 {% extends 'base.html' %}
     {% block content %}
+    <section class="hero-text-box">
+        <div class="hero-intro"  id="intro">
+            <h2>Sell and Buy Anything</h2>
+            <h1>All you need to power your business or buy from a business.</h1>
+            <p>Whether you're a business or a customer, our platform offers ....</p>
+            <a href="#welcome" class="btn btn-ghost scroll-btn">Get Started</a>
+        </div>
     
+
+
+        <div class="hero-welcome" id="welcome">
+            <h1>Welcome to eGarden!</h1>
+            <p>EGarden is a whimsical, floral-themed multi-vendor eCommerce platform that connects 
+                plant lovers, floral artisans, and everyday customers in one vibrant digital marketplace.
+                Our design supports complex interactions between admins, vendors, and customers.
+            </p>
+            
+            <a href="#" class="btn btn-ghost">Login</a>
+            <a href="#" class="btn btn-ghost">Register</a>
+        </div>
+    </section>
     {% endblock%}

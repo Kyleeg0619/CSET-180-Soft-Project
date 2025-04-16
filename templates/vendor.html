@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+    {% block content %}
+    <style>
+    .vendor_container{
+        height: 70vh;
+        background-color: aliceblue;
+        padding-top: 10px;
+        background-image: url("{{ url_for('static', filename='images/flower.jpg') }}");
+        background-size: cover;
+        background-position: center;
+    } 
+
+    
+    </style>
+
+    <div>
+        <div class="vendor_container">
+            <h1>Welcome Vender</h1>
+        </div>
+       
+    </div>
+    {% endblock%}
