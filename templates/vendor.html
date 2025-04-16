@@ -1,14 +1,20 @@
 {% extends 'base.html' %}
     {% block content %}
     <style>
+    :root {
+    --Violet--: #8c5383;
+    --lt-Violet--: #381941;
+    --Celadon--: #d7e7c3;
+    }
     .vendor_container{
         height: 70vh;
         background-color: aliceblue;
         padding-top: 10px;
         background-image: url("{{ url_for('static', filename='images/flower.jpg') }}");
         background-size: cover;
+        color: var(--Violet--);
         background-position: center;
-    } 
+    }
 
     /* PLANS */
     .plans-section {
@@ -94,86 +100,7 @@
         <div class="vendor_container">
             <h1>Welcome Vender</h1>
         </div>
-        <section class="plans-section">
-            <h2>Start Eating Healthy Today</h2>
-            <div class="plans-showcase">
-                <div class="plan-items">
-                    <div class="plan-item-section">
-                        <p class="price-plan"><span class="price">Add Edit & Manage Products</span></p>
-                        <p></p>
-                    </div>
-                    <div>
-                        <ul class="plan-list">
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline"></ion-icon>
-                                1 meal every day</li>
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline"></ion-icon>
-                                Order 24/7</li>
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline"></ion-icon>
-                                Access to newest creations</li>
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline"></ion-icon>
-                                Free delivery</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <button class="sign-up sign-up-active">Sign up now</button>
-                    </div>
-                </div>
-                <div class="plan-items">
-                    <div class="plan-item-section">
-                        <p class="price-plan"><span class="price">Update Price & Discounts</span></p>
-                    </div>
-                    <div>
-                        <ul class="plan-list">
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline"></ion-icon>
-                                1 mean 10 days/month</li>
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline"></ion-icon>
-                                Order 24/7</li>
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline"></ion-icon>
-                                Access to newest creations</li>
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline"></ion-icon>
-                                Free delivery</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <button class="sign-up">Sign up now</button>
-                    </div>
-                </div>
-                <div class="plan-items">
-                    <div class="plan-item-section">
-                        <p class="price-plan"><span class="price">Chat With Customers</span></p>
-                        <p><br></p>
-                    </div>
-                    <div>
-                        <ul class="plan-list">
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline"></ion-icon>
-                                1 meal</li>
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline">
-                                    <ion-icon name="close-outline"></ion-icon></ion-icon>
-                                Order from 8 am to 12 pm</li>
-                            <li class="plan-list-item"> 
-                                <ion-icon name="close-outline"></ion-icon>
-                            </li>
-                            <li class="plan-list-item">
-                                <ion-icon name="checkmark-outline"></ion-icon>
-                                Free delivery</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <button class="sign-up">Sign up now</button>
-                    </div>
-                </div>
-            </div>
-        </section>
+       
     </div>
 
     {% endblock%}
