@@ -1,12 +1,18 @@
 {% extends 'base.html' %}
     {% block content %}
     <style>
+    :root {
+    --Violet--: #8c5383;
+    --lt-Violet--: #381941;
+    --Celadon--: #d7e7c3;
+    }
     .vendor_container{
         height: 70vh;
         background-color: aliceblue;
         padding-top: 10px;
         background-image: url("{{ url_for('static', filename='images/flower.jpg') }}");
         background-size: cover;
+        color: var(--Violet--);
         background-position: center;
     }
 
@@ -17,6 +23,6 @@
         <div class="vendor_container">
             <h1>Welcome Vender</h1>
         </div>
-       
+     
     </div>
     {% endblock%}
