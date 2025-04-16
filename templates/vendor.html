@@ -5,12 +5,16 @@
     --Violet--: #8c5383;
     --lt-Violet--: #381941;
     --Celadon--: #d7e7c3;
+<<<<<<< Updated upstream
     }
+=======
+    }    
+>>>>>>> Stashed changes
     .vendor_container{
         height: 70vh;
         background-color: aliceblue;
         padding-top: 10px;
-        background-image: url("{{ url_for('static', filename='images/flower.jpg') }}");
+        background-image: url("https://i.pinimg.com/736x/0b/61/f1/0b61f1f87e16785ea935dcf261cb80b3.jpg");
         background-size: cover;
         color: var(--Violet--);
         background-position: center;
@@ -46,6 +50,7 @@
         border-bottom: 1px solid #f4f4f4;
         padding: 15px;
     } 
+<<<<<<< Updated upstream
 
     .plan-items div:first-child {
         background: #fcfcfc;
@@ -94,13 +99,128 @@
         background: #e67e22;
         color: white;
     }
+=======
+    h1{
+        color:var(--Violet--);
+    }
+
+/* PLANS */
+.plans-section {
+    padding-top: 80px;
+    margin-bottom: 80px;
+}
+
+.plans-showcase {
+    display: flex;
+    justify-content: center;
+    max-width: 1080px;
+    margin: 0 auto;
+    
+}
+
+.plan-items {
+    width: 31%;
+    margin: 1% auto;
+    border-radius: 5px;
+    font-size: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-image: url("{{ url_for('static', filename='images/flower.jpg') }}");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    transition: box-shadow 0.3s ease;
+    position: relative;
+    overflow: visible;
+}
+
+ .plan-items div {
+    /* border-bottom: 1px solid #f4f4f4; */
+    padding: 15px;
+} 
+
+.price-plan {
+    color: #8c5383;
+    font-weight: 200;
+}
+
+.price {
+    font-size: 300%;
+}
+
+.sign-up {
+    font-family: 'Lato', sans-serif;
+    display: block;
+    border: 1px solid #381941;
+    background: none;
+    padding: 10px ;
+    border-radius: 50px;
+    color: #381941;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+.sign-up:hover{
+    background-color: #381941;
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.corner-logo {
+    position: absolute;
+    bottom: -15px;   /* push it outside the box */
+    left: -15px;     /* adjust how much it hangs off the left */
+    width: 50px;     /* adjust size */
+    height: 50px;
+    z-index: 2;
+}
+
+>>>>>>> Stashed changes
     </style>
 
     <div>
         <div class="vendor_container">
             <h1>Welcome Vender</h1>
+<<<<<<< Updated upstream
         </div>
        
+=======
+    <section class="plans-section">
+        <div class="plans-showcase">
+            <div class="plan-items">
+                <img src alt="badge" >
+                <div class="plan-item-section">
+                    <p class="price-plan"><span class="price">Add, Edit, & Manage Products</span></p>
+                </div>
+                <div>
+                    <a href="{{ url_for('manage_products') }}" style="text-decoration: none;">
+                    <button class="sign-up">Click here!</button>
+                </a>
+                </div>
+            </div>
+
+            <div class="plan-items">
+                <div class="plan-item-section">
+                    <p class="price-plan"><span class="price">Update Price & Discounts</span></p>
+                </div>
+                <div>
+                    <button class="sign-up">Click here!</button>
+                </div>
+            </div>
+
+            <div class="plan-items">
+                <div class="plan-item-section">
+                    <p class="price-plan"><span class="price">Chat With Customers</span></p>
+                    <p><br></p>
+                </div>
+              
+                <div>
+                    <button class="sign-up">Click Here!</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>  
+>>>>>>> Stashed changes
     </div>
 
     {% endblock%}

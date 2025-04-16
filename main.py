@@ -81,6 +81,11 @@ def admin():
 def vendor(): 
     return render_template('vendor.html')
 
+@app.route('/vendor/products')
+def manage_products():
+    return render_template('manage_products.html')
+
+
 # *** Run & Debug ***
 if __name__ == '__main__':
     app.run(debug=True)
