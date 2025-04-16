@@ -72,7 +72,9 @@ def login():
 
     return render_template('login.html', msg=msg, account=account)
 
-
+@app.route('/vendor')
+def vendor(): 
+    return render_template('vendor.html')
 
 # *** Run & Debug ***
 if __name__ == '__main__':
