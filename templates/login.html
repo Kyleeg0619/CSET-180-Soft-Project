@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+    {% block content %}
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='images/butterfly.jpg') }}");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+    </style>
+
+    <form action="{{ url_for('login') }}" method="post" class="login_register">
+<h1>Login</h1>
+        <p style="text-align: center;font-weight: bold;">Welcome Back and Get Foraging!</p>
+
+        <label for="Username">
+            <i class="fas fa-user"></i>
+        </label>
+        <input type="text" name="username" placeholder="username" id="username">
+
+        <input type="email" name="email" placeholder="email" id="email">
+
+        <label for="Password">
+            <i class="fas fa-lock"></i>
+        </label>
+        <input type="password" name="password" placeholder="password" id="password" required>
+
+        <div class="msg">{{ msg }}</div>
+        <input type="submit" value="Login" id="register">
+
+        <a href="{{ url_for('index') }}" id="login">Back to Home</a>
+        <img src="{{ url_for('static', filename='images/butterfly-icon.png') }}" alt="" id="butterfly">
+        <img src="{{ url_for('static', filename='images/flower-icon.png') }}" alt="" id="flower">
+    </form>
+    {% endblock %}
