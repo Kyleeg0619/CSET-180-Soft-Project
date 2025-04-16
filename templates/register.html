@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+    {% block content %}
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='images/butterfly.jpg') }}");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+    </style>
+
+    <form action="{{ url_for('register') }}" method="post" class="login_register">
+<h1>Register</h1>
+        <p style="text-align: center;font-weight: bold;">Welcome to the Garden!</p>
+        <div class="select">
+            <hr class="home-spacer">
+            <label for="user_type">
+                <i class="fas fa-user">Are you a Customer or Vendor?</i>
+            </label>
+            <select name="user_type" id="status_dropdown">
+                <option value="Customer">Customer</option>
+                <option value="Vendor">Vendor</option>
+            </select>
+        </div>
+
+        <label for="Username">
+            <i class="fas fa-user"></i>
+        </label>
+        <input type="text" name="username" placeholder="username" id="username" required>
+
+        <label for="Email">
+            <i class="fas fa-user"></i>
+        </label>
+        <input type="email" name="email" placeholder="email" id="email" required>
+
+        <label for="first_name">
+            <i class="fas fa-user"></i>
+        </label>
+        <input type="text" name="first_name" placeholder="first name..." id='first_name' required>
+
+        <label for="last_name">
+            <i class="fas fa-user"></i>
+        </label>
+        <input type="text" name="last_name" placeholder="last name..." id="last_name" required>
+
+        <label for="Password">
+            <i class="fas fa-lock"></i>
+        </label>
+        <input type="password" name="password" placeholder="password" id="password" required>
+
+        <div class="msg">{{ msg }}</div>
+        <input type="submit" value="Register" id="register">
+
+        <a href="{{ url_for('login') }}" id="login">Login</a>
+        <img src="{{ url_for('static', filename='images/butterfly-icon.png') }}" alt="" id="butterfly">
+        <img src="{{ url_for('static', filename='images/flower-icon.png') }}" alt="" id="flower">
+    </form>
+    {% endblock %}
