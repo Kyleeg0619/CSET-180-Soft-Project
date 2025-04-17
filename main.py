@@ -85,6 +85,13 @@ def vendor():
 def manage_products():
     return render_template('manage_products.html')
 
+@app.route('/vendor/prices')
+def update_prices():
+    return render_template('update_prices.html')
+
+@app.route('/vendor/chat')
+def chat_reviews():
+    return render_template('chat_reviews.html')
 
 # *** Run & Debug ***
 if __name__ == '__main__':

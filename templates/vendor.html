@@ -5,11 +5,8 @@
     --Violet--: #8c5383;
     --lt-Violet--: #381941;
     --Celadon--: #d7e7c3;
-<<<<<<< Updated upstream
     }
-=======
-    }    
->>>>>>> Stashed changes
+
     .vendor_container{
         height: 70vh;
         background-color: aliceblue;
@@ -47,59 +44,8 @@
 
     .plan-items div {
         /* background: white; */
-        border-bottom: 1px solid #f4f4f4;
         padding: 15px;
     } 
-<<<<<<< Updated upstream
-
-    .plan-items div:first-child {
-        background: #fcfcfc;
-    } */
-
-    .plan-items h3 {
-        text-transform: uppercase;
-    }
-
-    .price-plan {
-        color: #e67e22;
-        font-weight: 200;
-    }
-
-    .price {
-        font-size: 300%;
-    }
-
-    .plan-list {
-        list-style: none;
-    }
-
-    .plan-list ion-icon {
-        color: #e67e22;
-        font-size: 70%;
-        margin: 5px;
-        vertical-align: middle;
-    }
-
-    .sign-up {
-        font-family: 'Lato', sans-serif;
-        display: block;
-        border: 1px solid #e67e22;
-        background: none;
-        padding: 10px 30px;
-        border-radius: 50px;
-        color: #e67e22;
-        margin: 0 auto;
-    }
-    .sign-up:hover{
-        background-color: #e67e22;
-        color: white;
-        transition: background-color 0.2s;
-    }
-    .sign-up-active {
-        background: #e67e22;
-        color: white;
-    }
-=======
     h1{
         color:var(--Violet--);
     }
@@ -134,7 +80,6 @@
 }
 
  .plan-items div {
-    /* border-bottom: 1px solid #f4f4f4; */
     padding: 15px;
 } 
 
@@ -164,63 +109,79 @@
     transition: background-color 0.2s;
 }
 
-.corner-logo {
+.corner-logo1{
     position: absolute;
     bottom: -15px;   /* push it outside the box */
     left: -15px;     /* adjust how much it hangs off the left */
-    width: 50px;     /* adjust size */
-    height: 50px;
+    width: 40px;    /* adjust size */
+    height: 40px;
     z-index: 2;
 }
 
->>>>>>> Stashed changes
+.corner-logo2{
+    position: absolute;
+    bottom: -15px;   /* push it outside the box */
+    left: 50%;       /* adjust how much it hangs off the left */
+    width: 40px;    /* adjust size */
+    height: 40px;
+    z-index: 2;
+    transform: translateX(-50%);
+}
+
+.corner-logo3{
+    position: absolute;
+    bottom: -15px;   /* push it outside the box */
+    right:-15px; /* adjust how much it hangs off the right*/
+    width: 40px;    /* adjust size */
+    height: 40px;
+    z-index: 2;
+}
     </style>
 
     <div>
         <div class="vendor_container">
             <h1>Welcome Vender</h1>
-<<<<<<< Updated upstream
-        </div>
-       
-=======
     <section class="plans-section">
         <div class="plans-showcase">
             <div class="plan-items">
-                <img src alt="badge" >
+                <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo1">
                 <div class="plan-item-section">
-                    <p class="price-plan"><span class="price">Add, Edit, & Manage Products</span></p>
+                    <p class="price-plan"><span class="price">Add, Edit, and Manage Products
                 </div>
                 <div>
-                    <a href="{{ url_for('manage_products') }}" style="text-decoration: none;">
+                    <a href="{{ url_for('manage_products') }}" style="text-decoration: none">
                     <button class="sign-up">Click here!</button>
                 </a>
                 </div>
             </div>
 
             <div class="plan-items">
+                <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo2">
                 <div class="plan-item-section">
-                    <p class="price-plan"><span class="price">Update Price & Discounts</span></p>
+                    <p class="price-plan"><span class="price">Update Prices and Discounts </span></p>
                 </div>
                 <div>
-                    <button class="sign-up">Click here!</button>
+                    <a href="{{ url_for('update_prices') }}" style="text-decoration: none">
+                        <button class="sign-up">Click here!</button>
+                    </a>
                 </div>
             </div>
 
             <div class="plan-items">
+                <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo3">
                 <div class="plan-item-section">
-                    <p class="price-plan"><span class="price">Chat With Customers</span></p>
-                    <p><br></p>
+                    <p class="price-plan"><span class="price">Chat With Customers/ Customer Reviews</span></p>
                 </div>
-              
                 <div>
-                    <button class="sign-up">Click Here!</button>
+                          <a href="{{ url_for('chat_reviews') }}" style="text-decoration: none">
+                    <button class="sign-up">Click here!</button>
+                </a>
                 </div>
             </div>
         </div>
     </section>
-
+</div>
 </div>  
->>>>>>> Stashed changes
     </div>
 
     {% endblock%}
