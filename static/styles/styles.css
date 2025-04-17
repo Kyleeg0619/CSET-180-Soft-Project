@@ -338,25 +338,3 @@ body {
         border-radius: 2px;
         margin-bottom: 20px;
       }
-
-
-      /* Button Styles for Index and Vendor */
-              /* button -login-register */
-      .btn:link, .btn:visited, input[type=submit]{
-        display: inline-block;
-        padding: 10px 30px;
-        font-weight: 300;
-        text-decoration: none;
-        border-radius: 200px;
-        transition: background-color 0.2s, border 0.2s, color 0.2s;
-    }
-        .btn-ghost:link,
-        .btn-ghost:visited {
-            border: 3px solid var(--Violet--);
-            color: var(--Violet--);
-        }
-        .btn-ghost:hover,
-        .btn-ghost:active {
-            /* border: 1px solid #e67e27; */
-            color: #fff;
-    }
