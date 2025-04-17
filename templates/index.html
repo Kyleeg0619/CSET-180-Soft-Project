@@ -1,31 +1,60 @@
 <style>
+    .home {
+        background-image: url("https://i.pinimg.com/736x/0b/61/f1/0b61f1f87e16785ea935dcf261cb80b3.jpg");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        justify-items: center;
+        width: 100%;
+    }
+
     .hero-text-box {
         text-align: center;
         color: var(--Violet--);
         font-size: 150%;
         font-weight: 300;
-        background-image: url("https://i.pinimg.com/736x/0b/61/f1/0b61f1f87e16785ea935dcf261cb80b3.jpg");
-        background-size: cover;
-        background-position: center;
-        height: 100%;
-       
+        display: flex;
+        width: 80%;
+        padding: 50px;
+        margin: 50px auto;
+        justify-content: center;
+        position: relative;
+    }
 
-        
+    .home-graphic {
+        width: 500px;
+        height: 500px;
+        object-fit: cover;
+        box-shadow: 50px 50px #381941;
+    }
+
+    #purple-star {
+        position: absolute;
+        width: 200px;
+        right: -100px;
+        top: -60px;
+    }
+
+    #tomogachi {
+        position: absolute;
+        width: 300px;
+        left: -130px;
+        bottom: -50px;
     }
     
     /* Section 1 */
     .hero-intro {
         padding: 30px;
-
+        width: 600px;
         /* display: flex; */
-        align-items: center;
+        align-content: center;
         justify-content: center;
-        margin-bottom: 100px;
-        
     }
     .hero-welcome {
+        width: 600px;
         margin-top: auto;
-        padding: 60px 20px;
+        padding: 60px 50px;
+        align-content: center;
         /* background-color: #f8f8f8;  */
     }
     a {
@@ -39,6 +68,7 @@
     .scroll-btn {
         margin-top: 20px;
     }
+
     /* button -login-register */
     .btn:link, .btn:visited, input[type=submit]{
     display: inline-block;
@@ -48,6 +78,11 @@
     border-radius: 200px;
     transition: background-color 0.2s, border 0.2s, color 0.2s;
 }
+
+    .btn-ghost {
+        margin: 10px;
+    }
+
     .btn-ghost:link,
     .btn-ghost:visited {
         border: 3px solid var(--Violet--);
@@ -57,31 +92,49 @@
     .btn-ghost:active {
         /* border: 1px solid #e67e27; */
         color: #fff;
+        background: #8c5383; 
 }
-    </style>
+
+    .hero-intro img {
+        width: 200px;
+    }
+
+    .hero-welcome img {
+        width: 150px;
+    }
     
 </style>
 {% extends 'base.html' %}
     {% block content %}
-    <section class="hero-text-box">
-        <div class="hero-intro"  id="intro">
-            <h2>Sell and Buy Anything</h2>
-            <h1>All you need to power your business or buy from a business.</h1>
-            <p>Whether you're a business or a customer, our platform offers ....</p>
-            <a href="#welcome" class="btn btn-ghost scroll-btn">Get Started</a>
-        </div>
-    
-
-
-        <div class="hero-welcome" id="welcome">
-            <h1>Welcome to eGarden!</h1>
-            <p>EGarden is a whimsical, floral-themed multi-vendor eCommerce platform that connects 
-                plant lovers, floral artisans, and everyday customers in one vibrant digital marketplace.
-                Our design supports complex interactions between admins, vendors, and customers.
-            </p>
-            
-            <a href="#" class="btn btn-ghost">Login</a>
-            <a href="#" class="btn btn-ghost">Register</a>
-        </div>
-    </section>
+    <div class="home">
+        <section class="hero-text-box">
+            <div class="hero-intro"  id="intro">
+                <img src="../static/images/logo-no-outline.png" alt="">
+                <h2>Sell and Buy Anything</h2>
+                <h1>All you need to power your business or buy from a business.</h1>
+                <p>Whether you're a business or a customer, our platform offers ....</p>
+                <a href="#welcome" class="btn btn-ghost scroll-btn">Get Started</a>
+            </div>
+            <div style="position: relative;">
+                <img src="../static/images/butterfly.jpg" alt="" class="home-graphic">
+                <img src="../static/images/purple-star-icon.png" alt="" id="purple-star">
+            </div>
+        </section>
+        <section class="hero-text-box" style="margin-bottom: 50px;">
+            <div style="position: relative;">
+                <img src="../static/images/star.jpeg" alt="" class="home-graphic">
+                <img src="../static/images/tomogachi-icon.png" alt="" id="tomogachi">
+            </div>
+            <div class="hero-welcome" id="welcome">
+                <img src="../static/images/lavender-icon.png" alt="">
+                <h1>Welcome to eGarden!</h1>
+                <p>EGarden is a whimsical, floral-themed multi-vendor eCommerce platform that connects
+                    plant lovers, floral artisans, and everyday customers in one vibrant digital marketplace.
+                    Our design supports complex interactions between admins, vendors, and customers.
+                </p>
+                <a href="{{ url_for('login') }}" class="btn btn-ghost">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-ghost">Register</a>
+            </div>
+        </section>
+    </div>
     {% endblock%}
