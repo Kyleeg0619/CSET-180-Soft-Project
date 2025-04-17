@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
 
 # *** Connect Database ***
-conn_str = "mysql+pymysql://root:Ky31ik3$m0s$;@localhost/egarden"
+conn_str = "mysql+pymysql://root:CSET115@localhost/egardens"
 engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
@@ -80,6 +80,18 @@ def admin():
 @app.route('/vendor')
 def vendor(): 
     return render_template('vendor.html')
+
+@app.route('/vendor/products')
+def manage_products():
+    return render_template('manage_products.html')
+
+@app.route('/vendor/prices')
+def update_prices():
+    return render_template('update_prices.html')
+
+@app.route('/vendor/chat')
+def chat_reviews():
+    return render_template('chat_reviews.html')
 
 # *** Run & Debug ***
 if __name__ == '__main__':
