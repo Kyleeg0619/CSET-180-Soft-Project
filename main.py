@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
 
 # *** Connect Database ***
-conn_str = "mysql+pymysql://root:CSET115@localhost/egardens"
+conn_str = "mysql+pymysql://root:CSET155@localhost/egardens"
 engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
