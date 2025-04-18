@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for
 from sqlalchemy import create_engine, text
 from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,14 +8,14 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
 
 # *** Connect Database ***
-conn_str = "mysql+pymysql://root:CSET115@localhost/egardens"
+conn_str = "mysql+pymysql://root:Ky31ik3$m0s$;@localhost/egarden"
 engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/register', methods=['GET','POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     msg = ''
     if request.method == 'POST':
@@ -26,24 +26,49 @@ def register():
         firstName = request.form['first_name']
         lastName = request.form['last_name']
         hashed_password = generate_password_hash(password)
-        
+
         with engine.begin() as conn:
-            existing = conn.execute(text('SELECT * FROM users WHERE username = :username OR email = :email'),{'username':username, 'email':email}).fetchone()
+            existing = conn.execute(
+                text('SELECT * FROM users WHERE username = :username OR email = :email'),
+                {'username': username, 'email': email}
+            ).fetchone()
 
             if existing:
                 msg = 'Account already exists'
             else:
-                conn.execute(text('INSERT INTO users (username, password, first_name, last_name, user_type, email) VALUES (:username, :password, :first_name, :last_name, :user_type, :email)'), {
-                    'username': username,
-                    'password': hashed_password,
-                    'first_name': firstName,
-                    'last_name': lastName,
-                    'user_type': userType,
-                    'email': email
-                })
+                # Insert into users table
+                conn.execute(
+                    text('''
+                        INSERT INTO users (username, password, first_name, last_name, user_type, email) 
+                        VALUES (:username, :password, :first_name, :last_name, :user_type, :email)
+                    '''),
+                    {
+                        'username': username,
+                        'password': hashed_password,
+                        'first_name': firstName,
+                        'last_name': lastName,
+                        'user_type': userType,
+                        'email': email
+                    }
+                )
+
+                # Get the newly inserted user's ID
+                user_id = conn.execute(
+                    text('SELECT user_id FROM users WHERE username = :username'),
+                    {'username': username}
+                ).scalar()
+
+                # If user is a vendor, insert into vendor table
+                if userType.lower() == 'vendor':
+                    conn.execute(
+                        text('INSERT INTO vendor (user_id) VALUES (:user_id)'),
+                        {'user_id': user_id}
+                    )
 
                 msg = 'You have successfully signed up! You can now log in.'
-    return render_template('register.html',msg=msg)
+
+    return render_template('register.html', msg=msg)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
