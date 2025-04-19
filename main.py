@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for
 from sqlalchemy import create_engine, text
 from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,14 +8,14 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
 
 # *** Connect Database ***
-conn_str = "mysql+pymysql://root:CSET155@localhost/egardens"
+conn_str = "mysql+pymysql://root:CSET115@localhost/egarden"
 engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/register', methods=['GET','POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     msg = ''
     if request.method == 'POST':
@@ -26,24 +26,49 @@ def register():
         firstName = request.form['first_name']
         lastName = request.form['last_name']
         hashed_password = generate_password_hash(password)
-        
+
         with engine.begin() as conn:
-            existing = conn.execute(text('SELECT * FROM users WHERE username = :username OR email = :email'),{'username':username, 'email':email}).fetchone()
+            existing = conn.execute(
+                text('SELECT * FROM users WHERE username = :username OR email = :email'),
+                {'username': username, 'email': email}
+            ).fetchone()
 
             if existing:
                 msg = 'Account already exists'
             else:
-                conn.execute(text('INSERT INTO users (username, password, first_name, last_name, user_type, email) VALUES (:username, :password, :first_name, :last_name, :user_type, :email)'), {
-                    'username': username,
-                    'password': hashed_password,
-                    'first_name': firstName,
-                    'last_name': lastName,
-                    'user_type': userType,
-                    'email': email
-                })
+                # Insert into users table
+                conn.execute(
+                    text('''
+                        INSERT INTO users (username, password, first_name, last_name, user_type, email) 
+                        VALUES (:username, :password, :first_name, :last_name, :user_type, :email)
+                    '''),
+                    {
+                        'username': username,
+                        'password': hashed_password,
+                        'first_name': firstName,
+                        'last_name': lastName,
+                        'user_type': userType,
+                        'email': email
+                    }
+                )
+
+                # Get the newly inserted user's ID
+                user_id = conn.execute(
+                    text('SELECT user_id FROM users WHERE username = :username'),
+                    {'username': username}
+                ).scalar()
+
+                # If user is a vendor, insert into vendor table
+                if userType.lower() == 'vendor':
+                    conn.execute(
+                        text('INSERT INTO vendor (user_id) VALUES (:user_id)'),
+                        {'user_id': user_id}
+                    )
 
                 msg = 'You have successfully signed up! You can now log in.'
-    return render_template('register.html',msg=msg)
+
+    return render_template('register.html', msg=msg)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -78,20 +103,71 @@ def admin():
         return render_template('admin.html')
 
 @app.route('/vendor')
-def vendor(): 
-    return render_template('vendor.html')
+def vendor():
+    reviews = []
+    if 'username' in session:
+        with engine.begin() as conn:
+            result = conn.execute(text("""
+                SELECT r.review_text, r.rating, u.username, r.review_date
+                FROM reviews r
+                JOIN users u ON r.user_id = u.user_id
+                JOIN vendor v ON r.vendor_id = v.vendor_id
+                JOIN users vu ON v.user_id = vu.user_id
+                WHERE vu.username = :vendor_username
+                ORDER BY r.review_date DESC
+            """), {'vendor_username': session['username']})
+
+            reviews = result.fetchall()
+
+    return render_template('vendor.html', reviews=reviews)
 
 @app.route('/vendor/products')
-def manage_products():
-    return render_template('manage_products.html')
+def modify_products():
+    return render_template('modify_products.html')
 
 @app.route('/vendor/prices')
 def update_prices():
     return render_template('update_prices.html')
 
-@app.route('/vendor/chat')
-def chat_reviews():
-    return render_template('chat_reviews.html')
+@app.route('/vendor/chat', methods=['GET', 'POST'])
+def chat():
+    messages = []
+    user_type = None
+
+    if 'username' in session:
+        with engine.begin() as conn:
+            # Get user type
+            user = conn.execute(
+                text("SELECT user_type, user_id FROM users WHERE username = :username"),
+                {'username': session['username']}
+            ).fetchone()
+
+            if user:
+                user_type = user.user_type
+                user_id = user.user_id
+
+                if request.method == 'POST':
+                    content = request.form['message']
+                    conn.execute(
+                        text("""
+                            INSERT INTO chat (user_id, content, timestamp)
+                            VALUES (:user_id, :content, NOW())
+                        """),
+                        {'user_id': user_id, 'content': content}
+                    )
+
+                result = conn.execute(
+                    text("""
+                        SELECT u.username, c.content, c.timestamp
+                        FROM chat c
+                        JOIN users u ON c.user_id = u.user_id
+                        ORDER BY c.timestamp DESC
+                    """)
+                )
+                messages = result.fetchall()
+
+    return render_template('chat.html', messages=messages, user_type=user_type)
+
 
 # *** Run & Debug ***
 if __name__ == '__main__':
