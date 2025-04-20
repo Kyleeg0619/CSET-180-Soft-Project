@@ -1,59 +1,34 @@
 {% extends 'base.html' %}
-    {% block content %}
-    <style>
-    :root {
+{% block content %}
+<style>
+:root {
     --Violet--: #8c5383;
     --lt-Violet--: #381941;
     --Celadon--: #d7e7c3;
-    }
+}
 
-    .vendor_container{
-        height: 70vh;
-        background-color: aliceblue;
-        padding-top: 10px;
-        background-image: url("https://i.pinimg.com/736x/0b/61/f1/0b61f1f87e16785ea935dcf261cb80b3.jpg");
-        background-size: cover;
-        color: var(--Violet--);
-        background-position: center;
-    }
+.vendor_wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 
-    /* PLANS */
-    .plans-section {
-        padding-top: 80px;
-        /* background: #f4f4f4; */
-        font-family: 'Lato', sans-serif;
-        margin-bottom: 80px;
-    }
+.vendor_container {
+    background-color: aliceblue;
+    background-image: url("https://i.pinimg.com/736x/0b/61/f1/0b61f1f87e16785ea935dcf261cb80b3.jpg");
+    background-size: cover;
+    background-position: center;
+    color: var(--Violet--);
+    padding-top: 10px;
+    padding-bottom: 80px;
+    flex-grow: 1;
+}
 
-    .plans-showcase {
-        display: flex;
-        justify-content: center;
-        max-width: 1080px;
-        margin: 0 auto;
-    }
-
-    .plan-items {
-        width: 31%;
-        margin: 1% auto;
-        border-radius: 5px;
-        font-size: 16px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        /* transition: box-shadow 0.3s ease; */
-    }
-
-
-    .plan-items div {
-        /* background: white; */
-        padding: 15px;
-    } 
-    h1{
-        color:var(--Violet--);
-    }
-
-/* PLANS */
+/* boxes section */
 .plans-section {
     padding-top: 80px;
-    margin-bottom: 80px;
+    font-family: 'Lato', sans-serif;
+    margin-bottom: 40px;
 }
 
 .plans-showcase {
@@ -61,11 +36,11 @@
     justify-content: center;
     max-width: 1080px;
     margin: 0 auto;
-    
 }
 
 .plan-items {
     width: 31%;
+    min-height: 50vh;
     margin: 1% auto;
     border-radius: 5px;
     font-size: 10px;
@@ -79,17 +54,18 @@
     overflow: visible;
 }
 
- .plan-items div {
+.plan-items div {
     padding: 15px;
-} 
-
-.price-plan {
-    color: #8c5383;
-    font-weight: 200;
 }
 
-.price {
-    font-size: 300%;
+h1 {
+    color: var(--Violet--);
+    font-size: 30px;
+    text-align: center;
+}
+
+h2, h3 {
+    text-align: center;
 }
 
 .sign-up {
@@ -97,91 +73,135 @@
     display: block;
     border: 1px solid #381941;
     background: none;
-    padding: 10px ;
+    padding: 10px;
     border-radius: 50px;
     color: #381941;
     margin: 0 auto;
     margin-bottom: 20px;
+    font-size: 14px;
 }
-.sign-up:hover{
+.sign-up:hover {
     background-color: #381941;
     color: white;
     transition: background-color 0.2s;
 }
 
-.corner-logo1{
+.corner-logo1,
+.corner-logo2,
+.corner-logo3 {
     position: absolute;
-    bottom: -15px;   /* push it outside the box */
-    left: -15px;     /* adjust how much it hangs off the left */
-    width: 40px;    /* adjust size */
+    bottom: -15px;
+    width: 40px;
     height: 40px;
     z-index: 2;
 }
 
-.corner-logo2{
-    position: absolute;
-    bottom: -15px;   /* push it outside the box */
-    left: 50%;       /* adjust how much it hangs off the left */
-    width: 40px;    /* adjust size */
-    height: 40px;
-    z-index: 2;
+.corner-logo1 { left: -15px; }
+.corner-logo2 {
+    left: 50%;
     transform: translateX(-50%);
 }
+.corner-logo3 { right: -15px; }
 
-.corner-logo3{
-    position: absolute;
-    bottom: -15px;   /* push it outside the box */
-    right:-15px; /* adjust how much it hangs off the right*/
-    width: 40px;    /* adjust size */
-    height: 40px;
-    z-index: 2;
+#user-icon {
+    width: 100px;
+    margin: 0 auto;
+    display: block;
+    margin-top: 10px;
 }
-    </style>
 
-    <div>
-        <div class="vendor_container">
-            <h1>Welcome Vender</h1>
-    <section class="plans-section">
-        <div class="plans-showcase">
-            <div class="plan-items">
-                <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo1">
-                <div class="plan-item-section">
-                    <p class="price-plan"><span class="price">Add, Edit, and Manage Products
+/* reviews section */
+.review-section {
+    padding: 40px 20px;
+    margin-top: 30px;
+}
+
+.review-section h1 {
+    text-align: center;
+    color: var(--Violet--);
+    margin-bottom: 20px;
+}
+
+.review-boxes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.review {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    width: 280px;
+    font-size: 14px;
+    background: #fff;
+    color: #333;
+}
+</style>
+
+<!-- Wrapper to help footer behave -->
+<div class="vendor_wrapper">
+    <div class="vendor_container">
+        <h1>Welcome Vender</h1>
+
+        <section class="plans-section">
+            <div class="plans-showcase">
+                <div class="plan-items">
+                    <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo1">
+                    <div>
+                        <h1 style="padding-top: 40px;">User Info</h1>
+                        <img src="{{ url_for('static', filename='images/user-logo.png') }}" alt="" id="user-icon">
+                        <h2 style="font-weight: bold;margin-top: 10px;">Vendor</h2>
+                    </div>    
                 </div>
-                <div>
-                    <a href="{{ url_for('manage_products') }}" style="text-decoration: none">
-                    <button class="sign-up">Click here!</button>
-                </a>
+
+                <div class="plan-items">
+                    <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo2">
+                    <div>
+                        <h1 style="padding-top: 40px;">Products</h1>
+                    </div>    
+                    <div>
+                        <a href="{{ url_for('modify_products') }}" style="text-decoration: none">
+                            <button class="sign-up" style="padding: 20px;">Modify or Add Products</button>
+                        </a>
+                        <button class="sign-up" style="padding: 20px;">Delete Products</button>
+                    </div>
+                </div>
+
+                <div class="plan-items">
+                    <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo3">
+                    <div>
+                        <h1 style="padding-top: 40px;">Vendor Dashboard</h1>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('chat') }}" style="text-decoration: none">
+                            <button class="sign-up" style="padding: 20px; font-size: 14px;">Chat with Customers</button>
+                        </a>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="plan-items">
-                <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo2">
-                <div class="plan-item-section">
-                    <p class="price-plan"><span class="price">Update Prices and Discounts </span></p>
-                </div>
-                <div>
-                    <a href="{{ url_for('update_prices') }}" style="text-decoration: none">
-                        <button class="sign-up">Click here!</button>
-                    </a>
-                </div>
+        <!-- Reviews section -->
+        <section class="review-section">
+            <h1>Customer Reviews</h1>
+            <div class="review-boxes">
+                {% if reviews %}
+                    {% for r in reviews %}
+                        <div class="review">
+                            <p><strong>{{ r.username }}</strong> ({{ r.rating }}/5)</p>
+                            <p>{{ r.review_text }}</p>
+                            <p style="font-size: 12px; color: var(--lt-Violet--);">
+                                {{ r.review_date.strftime('%Y-%m-%d') }}
+                            </p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align: center;">No reviews yet.</p>
+                {% endif %}
             </div>
-
-            <div class="plan-items">
-                <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo3">
-                <div class="plan-item-section">
-                    <p class="price-plan"><span class="price">Chat With Customers/ Customer Reviews</span></p>
-                </div>
-                <div>
-                          <a href="{{ url_for('chat_reviews') }}" style="text-decoration: none">
-                    <button class="sign-up">Click here!</button>
-                </a>
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
-</div>  
+        </section>
     </div>
-
-    {% endblock%}
+</div>
+{% endblock %}

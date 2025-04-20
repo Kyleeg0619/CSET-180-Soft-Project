@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+.chat-wrapper {
+    min-height: 100vh;
+    background-image: url("https://i.pinimg.com/736x/0b/61/f1/0b61f1f87e16785ea935dcf261cb80b3.jpg");
+    background-size: cover;
+    background-position: center;
+    padding: 60px 20px;
+    font-family: 'Lato', sans-serif;
+    color: #381941;
+}
+
+.chat-box {
+    max-width: 700px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.chat-box h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #8c5383;
+}
+
+.message {
+    background-color: #f1f1f1;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.message strong {
+    color: #8c5383;
+}
+
+.chat-form {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: none;
+    font-size: 14px;
+}
+
+.chat-form button {
+    padding: 10px;
+    background-color: #8c5383;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.chat-form button:hover {
+    background-color: #381941;
+}
+</style>
+
+<div class="chat-wrapper">
+    <div class="chat-box">
+        <h2>Chat</h2>
+
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="message">
+                    <strong>{{ msg.username }}</strong>: {{ msg.content }}
+                    <div style="font-size: 12px; color: gray;">{{ msg.timestamp }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No messages yet.</p>
+        {% endif %}
+
+        <form class="chat-form" action="{{ url_for('chat') }}" method="POST">
+            <textarea name="message" rows="4" placeholder="Type your message..." required></textarea>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
