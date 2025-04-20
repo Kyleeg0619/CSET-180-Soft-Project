@@ -125,6 +125,36 @@ def vendor():
 def modify_products():
     return render_template('modify_products.html')
 
+@app.route('/vendor/products/add_product', methods=["GET",'POST'])
+def add_product():
+    # if 'username' not in session:
+    #     return redirect(url_for('login'))
+    if request.method == "POST":
+        product_name = request.form['product_name']
+        product_desc = request.form['product_desc']
+        product_color = request.form['product_color']
+        product_sizes = request.form['product_sizes']
+        product_quantity= request.form['product_quantity']
+        original_price = request.form['original_price']
+        discount_price= request.form['discount_price']
+
+        with engine.begin() as conn:
+            conn.execute(text('INSERT INTO products (product_name, product_desc, product_color, product_sizes, product_quantity, original_price, discount_price) VALUES (:product_name, :product_desc, :product_color, :product_sizes, :product_quantity, :original_price, :discount_price)'), {
+                'product_name': product_name,
+                'product_desc': product_desc,
+                'product_color': product_color,
+                'product_sizes': product_sizes,
+                'product_quantity':product_quantity,
+                'original_price': original_price,
+                'discount_price': discount_price
+            })
+
+            msg = 'You have successfully added a product.'
+            return render_template('add_product.html',msg=msg)
+    return render_template('add_product.html')
+
+
+
 @app.route('/vendor/prices')
 def update_prices():
     return render_template('update_prices.html')
