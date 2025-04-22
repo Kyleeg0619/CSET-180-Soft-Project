@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from sqlalchemy import create_engine, text
 from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
@@ -58,13 +59,6 @@ def register():
                     {'username': username}
                 ).scalar()
 
-                # If user is a vendor, insert into vendor table
-                if userType.lower() == 'vendor':
-                    conn.execute(
-                        text('INSERT INTO vendor (user_id) VALUES (:user_id)'),
-                        {'user_id': user_id}
-                    )
-
                 msg = 'You have successfully signed up! You can now log in.'
 
     return render_template('register.html', msg=msg)
@@ -88,10 +82,12 @@ def login():
                 if account and check_password_hash(account.password, password):
                     session['loggedin'] = True
                     session['username'] = account.username
+                    session['user_id'] = account.user_id
+                    print("Session set: ", session.get('username'))
                     if account.user_type == 'Vendor':
-                        return redirect(url_for('Vendor'))
+                        return redirect(url_for('vendor'))
                     else:
-                        return redirect(url_for('Customer'))
+                        return redirect(url_for('customer'))
                 else:
                     msg = 'Incorrect username, email or password.'
 
@@ -104,60 +100,145 @@ def admin():
 
 @app.route('/vendor')
 def vendor():
-    reviews = []
-    if 'username' in session:
-        with engine.begin() as conn:
-            result = conn.execute(text("""
-                SELECT r.review_text, r.rating, u.username, r.review_date
-                FROM reviews r
-                JOIN users u ON r.user_id = u.user_id
-                JOIN vendor v ON r.vendor_id = v.vendor_id
-                JOIN users vu ON v.user_id = vu.user_id
-                WHERE vu.username = :vendor_username
-                ORDER BY r.review_date DESC
-            """), {'vendor_username': session['username']})
+    username = session['username']
+    user_id = session['user_id']
 
-            reviews = result.fetchall()
+    with engine.begin() as conn:
+        reviews = conn.execute(text('SELECT * FROM reviews WHERE vendor_id = :vendor_id'),{'vendor_id':user_id}).fetchall()
 
-    return render_template('vendor.html', reviews=reviews)
+        products = conn.execute(text('SELECT * FROM products WHERE vendor_username = :username'),{'username':username}).fetchall()
 
-@app.route('/vendor/products')
+    return render_template('vendor.html', reviews=reviews, products=products, username=username)
+
+@app.route('/vendor/products/modify_product')
 def modify_products():
     return render_template('modify_products.html')
 
 @app.route('/vendor/products/add_product', methods=["GET",'POST'])
 def add_product():
-    # if 'username' not in session:
-    #     return redirect(url_for('login'))
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     if request.method == "POST":
         product_name = request.form['product_name']
         product_desc = request.form['product_desc']
-        product_color = request.form['product_color']
-        product_sizes = request.form['product_sizes']
         product_quantity= request.form['product_quantity']
-        original_price = request.form['original_price']
-        discount_price= request.form['discount_price']
+        original_price_raw = request.form['original_price'].strip()
+        discount_price_raw = request.form['discount_price'].strip()
+        discount_date_end_raw = request.form['discount_date_end'].strip()
+        product_warranty_raw = request.form['product_warranty'].strip()
+
+        discount_date_end = discount_date_end_raw if discount_date_end_raw else None
+        product_warranty = product_warranty_raw if product_warranty_raw else None
+        original_price = float(original_price_raw) if original_price_raw else None
+        discount_price = float(discount_price_raw) if discount_price_raw else None
+
+
+        colors_json = json.dumps([c.strip() for c in request.form['product_color'].split(',')])
+        sizes_json = json.dumps([c.strip() for c in request.form['product_sizes'].split(',')])
+
+
 
         with engine.begin() as conn:
-            conn.execute(text('INSERT INTO products (product_name, product_desc, product_color, product_sizes, product_quantity, original_price, discount_price) VALUES (:product_name, :product_desc, :product_color, :product_sizes, :product_quantity, :original_price, :discount_price)'), {
+            conn.execute(text('INSERT INTO products (product_name, product_desc, product_color, product_sizes, product_quantity, original_price, discount_price, discount_date_end, product_warranty, vendor_username) VALUES (:product_name, :product_desc, :product_color, :product_sizes, :product_quantity, :original_price, :discount_price, :discount_date_end, :product_warranty, :vendor_username)'), {
                 'product_name': product_name,
                 'product_desc': product_desc,
-                'product_color': product_color,
-                'product_sizes': product_sizes,
+                'product_color': colors_json,
+                'product_sizes': sizes_json,
                 'product_quantity':product_quantity,
                 'original_price': original_price,
-                'discount_price': discount_price
+                'discount_price': discount_price,
+                'discount_date_end': discount_date_end, 'product_warranty':product_warranty, 'vendor_username':session['username']
             })
 
             msg = 'You have successfully added a product.'
-            return render_template('add_product.html',msg=msg)
+            return redirect(url_for('vendor'))
     return render_template('add_product.html')
 
+@app.route('/vendor/products/edit_product/<int:product_id>', methods=["GET", "POST"])
+def edit_product(product_id):
+    with engine.begin() as conn:
+        product = conn.execute(
+            text('SELECT * FROM products WHERE product_id = :product_id AND vendor_username = :vendor_username'),
+            {'product_id': product_id, 'vendor_username': session['username']}
+        ).fetchone()
 
+        if not product:
+            return 'Product not found or you don\'t have permission.', 403
 
-@app.route('/vendor/prices')
-def update_prices():
-    return render_template('update_prices.html')
+        product_colors = json.loads(product.product_color)
+        product_sizes = json.loads(product.product_sizes)
+
+    return render_template(
+        'edit_product.html',
+        product=product,
+        product_colors=product_colors,
+        product_sizes=product_sizes, json=json
+    )
+
+@app.route('/edit_product_submit/<int:product_id>', methods=['POST'])
+def edit_product_submit(product_id):
+    if request.method == "POST":
+        product_name = request.form['product_name']
+        product_desc = request.form['product_desc']
+        product_color_raw = request.form['product_color'].split(', ')
+        product_sizes_raw = request.form['product_sizes'].split(', ')
+        product_quantity = request.form['product_quantity']
+        original_price_raw = request.form['original_price'].strip()
+        discount_price_raw = request.form['discount_price'].strip()
+        discount_date_end_raw = request.form['discount_date_end'].strip()
+        product_warranty_raw = request.form['product_warranty'].strip()
+
+        # Handle the colors and sizes if empty or None
+        if not product_color_raw:
+            product_color = []  # or empty list if you're saving it as a JSON field
+        else:
+            product_color = [color.strip() for color in product_color_raw]
+
+        if not product_sizes_raw:
+            product_sizes = []  # or empty list
+        else:
+            product_sizes = [size.strip() for size in product_sizes_raw]
+
+        # Fix to handle 'None' string and empty fields for prices
+        original_price = float(original_price_raw) if original_price_raw and original_price_raw != 'None' else None
+        discount_price = float(discount_price_raw) if discount_price_raw and discount_price_raw != 'None' else None
+        discount_date_end = discount_date_end_raw if discount_date_end_raw else None
+        product_warranty = product_warranty_raw if product_warranty_raw else None
+
+        # Convert colors and sizes to JSON format
+        colors_json = json.dumps([color.strip() for color in product_color])
+        sizes_json = json.dumps([size.strip() for size in product_sizes])
+
+        with engine.begin() as conn:
+            conn.execute(text('''
+                UPDATE products 
+                SET 
+                    product_name = :product_name, 
+                    product_desc = :product_desc, 
+                    product_color = :product_color, 
+                    product_sizes = :product_sizes, 
+                    product_quantity = :product_quantity, 
+                    original_price = :original_price, 
+                    discount_price = :discount_price, 
+                    discount_date_end = :discount_date_end, 
+                    product_warranty = :product_warranty 
+                WHERE product_id = :product_id AND vendor_username = :vendor_username
+            '''),
+            {
+                'product_name': product_name,
+                'product_desc': product_desc,
+                'product_color': colors_json,
+                'product_sizes': sizes_json,
+                'product_quantity': product_quantity,
+                'original_price': original_price,
+                'discount_price': discount_price,
+                'discount_date_end': discount_date_end,
+                'product_warranty': product_warranty,
+                'vendor_username': session['username'],
+                'product_id': product_id
+            })
+            return redirect(url_for('vendor'))
 
 @app.route('/vendor/chat', methods=['GET', 'POST'])
 def chat():
@@ -197,6 +278,22 @@ def chat():
                 messages = result.fetchall()
 
     return render_template('chat.html', messages=messages, user_type=user_type)
+
+@app.route('/handle_product_action', methods=['POST'])
+def handle_product_action():
+    product_id = request.form['product_id']
+    action = request.form['action']
+
+    if action == 'delete':
+        with engine.begin() as conn:
+            conn.execute(text('DELETE FROM products WHERE product_id = :product_id AND vendor_username = :vendor_username'), {
+                'product_id': product_id,
+                'vendor_username': session['username']
+            })
+        return redirect(url_for('vendor'))
+    
+    if action == 'edit':
+        return redirect(url_for('edit_product', product_id=product_id))
 
 
 # *** Run & Debug ***

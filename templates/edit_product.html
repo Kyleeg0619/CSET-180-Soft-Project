@@ -54,37 +54,47 @@
     }
 </style>
 <div class="add_product">
-    <h1>Add A Product</h1>
-    <form action="{{ url_for('add_product') }}" method="POST">
-      <img src="{{ url_for('static', filename='images/sprout.png') }}" alt="sprout">
+    <h1>Edit A Product</h1>
+    <form action="{{ url_for('edit_product_submit', product_id=product.product_id) }}" method="POST">
+      <img src="{{ url_for('static', filename='images/tulip.png') }}" alt="sprout">
         <div class="product-form">
             <label for="product_name">Product Name: </label>
-            <input type="text" id="product_name" name="product_name" required>
+            <input type="text" id="product_name" name="product_name" value="{{product.product_name}}" required>
             <br>
             <label for="product_desc">Product Description: </label>
-            <input type="text" id="product_desc" name="product_desc" required>
+            <input type="text" id="product_desc" name="product_desc" value="{{product.product_desc}}" required>
             <br> 
             <label for="product_color">Product Color (Comma Separated): </label>
-            <input type="text" id="product_color" name="product_color" placeholder="e.g., Red, Blue, Green" required>
+            <input type="text" id="product_color" name="product_color" 
+       placeholder="e.g., Red, Blue, Green" 
+       value="{{ ', '.join(json.loads(product.product_color)) if product.product_color else '' }}" required>
+
             <br>
             <label for="product_sizes">Product Sizes (Comma Separated): </label>
-            <input type="text" id="product_sizes" name="product_sizes" placeholder="e.g., Small, Medium, Large" required>
+            <input type="text" id="product_sizes" name="product_sizes" 
+       placeholder="e.g., Small, Medium, Large" 
+       value="{{ ', '.join(json.loads(product.product_sizes)) if product.product_sizes else '' }}" required>
+
             <br>
             <label for="product_quantity">Product Quantity: </label>
-            <input type="number" id="product_quantity" name="product_quantity" required>
+            <input type="number" id="product_quantity" name="product_quantity" value="{{product.product_quantity}}" required>
             <br>
             <label for="original_price">Product Price: </label>
-            <input type="text" id="original_price" name="original_price" required>
+            <input type="text" id="original_price" name="original_price" value="{{product.original_price}}" required>
             <BR>
             <label for="discount_price">Discount Price: </label>
-            <input type="text" id="discount_price" name="discount_price">
+            <input type="text" id="discount_price" name="discount_price" value="{{product.discount_price}}">
             <BR>
             <label for="discount_date_end">End of Discount Period: </label>
-            <input type="date" id="discount_date_end" name="discount_date_end" placeholder="if discount period...">
+            <input type="date" id="discount_date_end" name="discount_date_end" placeholder="if discount period..." value="{{ product.discount_date_end.strftime('%Y-%m-%d') if product.discount_date_end else '' }}"
+            >
             <br>
             <label for="product_warranty">Product Warranty: </label>
-            <input type="date" id="product_warranty" name="product_warranty" placeholder="if warranty...">
-            <button type="submit" id="submit" class="sign-up">Add Product</button>
+            <input type="date" id="product_warranty" name="product_warranty" placeholder="if warranty..." value="{{ product.product_warranty.strftime('%Y-%m-%d') if product.product_warranty else '' }}">
+
+            <input type="hidden" name="product_id" value="{{product.product_id}}">
+
+            <button type="submit" id="submit" class="sign-up">Submit</button>
         </div>
 
     </form>

@@ -1,5 +1,6 @@
 :root {
     --Violet--: #8c5383;
+    --pastel-purple--: #f2deef;
     --lt-Violet--: #381941;
     --Celadon--: #d7e7c3;
 }
@@ -218,7 +219,7 @@ body {
       }
     }
 
-    /* Register.html */
+/* Register.html */
     h1, h2, #register, #login, .select, select {
       font-family: TitleFont, Arial, Helvetica, sans-serif;
     }
@@ -338,3 +339,47 @@ body {
         border-radius: 2px;
         margin-bottom: 20px;
       }
+
+      .sign-up {
+        font-family: 'Lato', sans-serif;
+        display: block;
+        border: 3px solid #381941;
+        background: none;
+        padding: 10px;
+        border-radius: 50px;
+        color: #381941;
+        margin: 5px auto;
+        font-size: 14px;
+        text-decoration: none;
+        padding: 15px 8px;
+        width: 60%;
+    }
+
+    .sign-up:hover {
+      background-color: #381941;
+      color: white;
+      transition: background-color 0.2s;
+  }
+
+  .product_form {
+    display: inline-block;
+    width: 200px;
+    font-size: 15px;
+    border: 3px solid var(--Violet--);
+    background: var(--pastel-purple--);
+    min-height: 400px;
+    align-items: center;
+    margin: 0 10px;
+    align-self: center;
+  }
+
+  .product_form img {
+    display: block;
+    width: 100px;
+    margin: 0 auto;
+  }
+
+  .product {
+    list-style-type: none;
+  }
+
