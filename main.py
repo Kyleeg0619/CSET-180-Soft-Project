@@ -92,12 +92,14 @@ def login():
                     msg = 'Incorrect username, email or password.'
 
     return render_template('login.html', msg=msg, account=account)
-  
-# *** Admin Page ***
+
+# *** ADMIN FUNCTIONALITY ***
 @app.route('/admin')
 def admin():
         return render_template('admin.html')
-
+# *** END OF ADMIN FUNCTIONALITY ***
+  
+# *** VENDOR FUNCTIONALITY ***
 @app.route('/vendor')
 def vendor():
     username = session['username']
@@ -133,18 +135,17 @@ def add_product():
         original_price = float(original_price_raw) if original_price_raw else None
         discount_price = float(discount_price_raw) if discount_price_raw else None
 
-
-        colors_json = json.dumps([c.strip() for c in request.form['product_color'].split(',')])
-        sizes_json = json.dumps([c.strip() for c in request.form['product_sizes'].split(',')])
-
-
+        colors = request.form.getlist('colors')
+        sizes = request.form.getlist('sizes')
+        colors_str = ','.join(colors)
+        sizes_str = ','.join(sizes)
 
         with engine.begin() as conn:
             conn.execute(text('INSERT INTO products (product_name, product_desc, product_color, product_sizes, product_quantity, original_price, discount_price, discount_date_end, product_warranty, vendor_username) VALUES (:product_name, :product_desc, :product_color, :product_sizes, :product_quantity, :original_price, :discount_price, :discount_date_end, :product_warranty, :vendor_username)'), {
                 'product_name': product_name,
                 'product_desc': product_desc,
-                'product_color': colors_json,
-                'product_sizes': sizes_json,
+                'product_color': colors_str,
+                'product_sizes': sizes_str,
                 'product_quantity':product_quantity,
                 'original_price': original_price,
                 'discount_price': discount_price,
@@ -166,14 +167,9 @@ def edit_product(product_id):
         if not product:
             return 'Product not found or you don\'t have permission.', 403
 
-        product_colors = json.loads(product.product_color)
-        product_sizes = json.loads(product.product_sizes)
-
     return render_template(
         'edit_product.html',
-        product=product,
-        product_colors=product_colors,
-        product_sizes=product_sizes, json=json
+        product=product
     )
 
 @app.route('/edit_product_submit/<int:product_id>', methods=['POST'])
@@ -181,34 +177,21 @@ def edit_product_submit(product_id):
     if request.method == "POST":
         product_name = request.form['product_name']
         product_desc = request.form['product_desc']
-        product_color_raw = request.form['product_color'].split(', ')
-        product_sizes_raw = request.form['product_sizes'].split(', ')
         product_quantity = request.form['product_quantity']
         original_price_raw = request.form['original_price'].strip()
         discount_price_raw = request.form['discount_price'].strip()
         discount_date_end_raw = request.form['discount_date_end'].strip()
         product_warranty_raw = request.form['product_warranty'].strip()
-
-        # Handle the colors and sizes if empty or None
-        if not product_color_raw:
-            product_color = []  # or empty list if you're saving it as a JSON field
-        else:
-            product_color = [color.strip() for color in product_color_raw]
-
-        if not product_sizes_raw:
-            product_sizes = []  # or empty list
-        else:
-            product_sizes = [size.strip() for size in product_sizes_raw]
+        colors = request.form.getlist('colors')
+        sizes = request.form.getlist('sizes')
+        colors_str = ','.join(colors)
+        sizes_str = ','.join(sizes)
 
         # Fix to handle 'None' string and empty fields for prices
         original_price = float(original_price_raw) if original_price_raw and original_price_raw != 'None' else None
         discount_price = float(discount_price_raw) if discount_price_raw and discount_price_raw != 'None' else None
         discount_date_end = discount_date_end_raw if discount_date_end_raw else None
         product_warranty = product_warranty_raw if product_warranty_raw else None
-
-        # Convert colors and sizes to JSON format
-        colors_json = json.dumps([color.strip() for color in product_color])
-        sizes_json = json.dumps([size.strip() for size in product_sizes])
 
         with engine.begin() as conn:
             conn.execute(text('''
@@ -228,8 +211,8 @@ def edit_product_submit(product_id):
             {
                 'product_name': product_name,
                 'product_desc': product_desc,
-                'product_color': colors_json,
-                'product_sizes': sizes_json,
+                'product_color': colors_str,
+                'product_sizes': sizes_str,
                 'product_quantity': product_quantity,
                 'original_price': original_price,
                 'discount_price': discount_price,
@@ -294,7 +277,47 @@ def handle_product_action():
     
     if action == 'edit':
         return redirect(url_for('edit_product', product_id=product_id))
+# *** END OF VENDOR FUNCTIONALITY ***
 
+# *** CUSTOMER FUNCTIONALITY ***
+@app.route('/customer')
+@app.route('/customer/<page>')
+def customer(page=1):
+    username = session['username']
+
+    page = int(page)
+    per_page = 6
+    page_limit = (page-1)*per_page
+
+    with engine.begin() as conn:
+
+        account = conn.execute(text('SELECT * FROM users WHERE username = :username'), {'username':username}).fetchone()
+        
+        products = conn.execute(text('SELECT * FROM products LIMIT :per_page OFFSET :page'),{'per_page':per_page,'page':page_limit}).fetchall()
+
+    return render_template('customer.html', account=account, products=products, page=page, per_page=per_page)
+
+@app.route('/search', methods=['POST'])
+def search():
+    search_query = request.form.get('query','').strip()
+    print(search_query)
+    
+    with engine.begin() as conn:
+        username = session['username']
+        account = conn.execute(text('SELECT * FROM users WHERE username = :username'), {'username':username}).fetchone()
+
+        if search_query=='':
+            return redirect(url_for('customer'))
+
+        products = conn.execute(text('SELECT * FROM products WHERE product_name LIKE :search_query OR product_desc LIKE :search_query OR vendor_username LIKE :search_query'),{'search_query':f'%{search_query}%'}).fetchall()
+
+        return render_template('customer.html', account=account, page=1, search_query=search_query, products=products)
+
+@app.route('/product/<int:product_id>')
+def product(product_id):
+    render_template('product.html', product_id=product_id)
+
+# *** END OF CUSTOMER FUNCTIONALITY ***
 
 # *** Run & Debug ***
 if __name__ == '__main__':
