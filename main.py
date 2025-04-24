@@ -74,6 +74,8 @@ def login():
         email = request.form['email']
 
         if username == 'admin' and password == 'admin':
+            session['loggedin'] = True
+            session['username'] = 'admin'
             return redirect(url_for('admin'))
         else:
             with engine.begin() as conn:
@@ -96,16 +98,20 @@ def login():
 # *** Admin Page ***
 @app.route('/admin')
 def admin():
-    return render_template('admin.html')
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    with engine.begin() as conn:
+        reviews = conn.execute(text('SELECT * FROM reviews')).fetchall()
+        products = conn.execute(text('SELECT * FROM products')).fetchall()
 
-@app.route('/admin/products/modify_product')
+    return render_template('admin.html', products=products, reviews=reviews)
+
+@app.route('/admin/products/admin_modify_product')
 def admin_modify_product():
-    return render_template('modify_product.html')
+    return render_template('admin_modify_product.html')
 
-@app.route('/admin/products/add_product', methods=["GET", "POST"])
+@app.route('/admin/products/admin_add_product', methods=["GET", "POST"])
 def admin_add_product():
-    # need to add admin login 
-
     if request.method == "POST":
         product_name = request.form['product_name']
         product_desc = request.form['product_desc']
@@ -119,6 +125,7 @@ def admin_add_product():
         product_warranty = product_warranty_raw if product_warranty_raw else None
         original_price = float(original_price_raw) if original_price_raw else None
         discount_price = float(discount_price_raw) if discount_price_raw else None
+        
 
         colors_json = json.dumps([c.strip() for c in request.form['product_color'].split(',')])
         sizes_json = json.dumps([c.strip() for c in request.form['product_sizes'].split(',')])
@@ -139,17 +146,16 @@ def admin_add_product():
                 'discount_price': discount_price,
                 'discount_date_end': discount_date_end,
                 'product_warranty': product_warranty,
-                'vendor_username': session['username']  # <-- idk if we keep this or not? assume so bc its in the db
-                                                        
+                'vendor_username': request.form['vendor_username']                                       
             })
 
         msg = 'You have successfully added a product.'
         return redirect(url_for('admin'))
 
-    return render_template('add_product.html')
+    return render_template('admin_add_product.html')
 
-@app.route('/admin/products/edit_product/<int:product_id>', methods=["GET", "POST"])
-def edit_product_admin(product_id):
+@app.route('/admin/products/admin_edit_product/<int:product_id>', methods=["GET", "POST"])
+def admin_edit_product(product_id):
     with engine.begin() as conn:
         product = conn.execute(
             text('SELECT * FROM products WHERE product_id = :product_id'),
@@ -163,14 +169,14 @@ def edit_product_admin(product_id):
         product_sizes = json.loads(product.product_sizes)
 
     return render_template(
-        'edit_product.html',
+        'admin_edit_product.html',
         product=product,
         product_colors=product_colors,
         product_sizes=product_sizes, json=json
     )
 
-@app.route('/edit_product_submit_admin/<int:product_id>', methods=['POST'])
-def edit_product_submit_admin(product_id):
+@app.route('/admin_edit_product_submit/<int:product_id>', methods=['POST'])
+def admin_edit_product_submit(product_id):
     if request.method == "POST":
         product_name = request.form['product_name']
         product_desc = request.form['product_desc']
@@ -233,6 +239,21 @@ def edit_product_submit_admin(product_id):
             })
             return redirect(url_for('admin'))
 
+@app.route('/admin_handle_product_action', methods=['POST'])
+def admin_handle_product_action():
+    product_id = request.form['product_id']
+    action = request.form['action']
+
+    if action == 'delete': 
+        with engine.begin() as conn:
+            conn.execute(text('DELETE FROM products WHERE product_id = :product_id'), {
+                'product_id': product_id
+            })
+        return redirect(url_for('admin'))
+    
+    if action == 'edit':
+        return redirect(url_for('admin_edit_product', product_id=product_id))
+    
 # *** Vendor Page ***
 @app.route('/vendor')
 def vendor():
@@ -429,6 +450,10 @@ def handle_product_action():
     
     if action == 'edit':
         return redirect(url_for('edit_product', product_id=product_id))
+
+
+
+
 
 
 # *** Run & Debug ***
