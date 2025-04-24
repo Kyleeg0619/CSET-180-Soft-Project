@@ -1,6 +1,6 @@
 :root {
     --Violet--: #8c5383;
-    --pastel-purple--: #f2deef;
+    --pastel-purple--: #ffedfc;
     --lt-Violet--: #381941;
     --Celadon--: #d7e7c3;
 }
@@ -21,7 +21,7 @@
     src: url(../fonts/roundedvale.ttf);
 }
 
-body {
+body, button, input {
     font-family: Titlefont, Arial, Helvetica, sans-serif;
 }
 
