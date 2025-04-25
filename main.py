@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
 
 # *** Connect Database ***
-conn_str = "mysql+pymysql://root:Ky31ik3$m0s$;@localhost/egarden"
+conn_str = "mysql+pymysql://root:CSET155@localhost/egarden"
 engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
@@ -315,7 +315,11 @@ def search():
 
 @app.route('/product/<int:product_id>')
 def product(product_id):
-    render_template('product.html', product_id=product_id)
+# select info from the products table using product id
+    with engine.begin() as conn:
+        products = conn.execute(text('SELECT * FROM products WHERE product_id =:product_id'),{'product_id':product_id}).fetchone()
+# had to change product_id=product_id to product=product because the page needs all the product info and i was getting error
+    return render_template('product.html', product=product)
 
 # *** END OF CUSTOMER FUNCTIONALITY ***
 

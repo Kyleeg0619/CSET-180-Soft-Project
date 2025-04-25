@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Product info page</h1>
+
+<!-- this is only to see if the page actually works  -->
+<img src="../static/images/sprout.PNG" alt="">
+    <ul>
+        <li class="product_name">{{product.product_name}}</li>
+        <li>{{product.product_desc}}</li>
+        <li class="product_action">Click for color options, sizes, warranty, etc...</li>
+        {% if product.discount_price %}
+        <li class="price">${{ product.discount_price }}</li>
+        <li class="original-discounted price">${{product.original_price}}</li>
+        {% else %}
+        <li class="price">${{product.original_price}}</li>
+        {% endif %}
+    </ul>
+{% endblock %}

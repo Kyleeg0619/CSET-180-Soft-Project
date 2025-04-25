@@ -233,7 +233,8 @@
                     <img src="../static/images/strawberry.PNG" alt="">
                 </div>
             </div>
-            <form class="product-block">
+            <!-- <form action=" url_for('product', product_id=product.id) " class="product-block"> --> 
+                <!-- ^^removed the curly brackets to comment jinja operator out -->
                 {% for product in products %}
                 <div class="product">
                     <p id="x-icon">&#10005;</p>
@@ -251,10 +252,12 @@
                         {% endif %}
                     </ul>
                     <input type="hidden" value="{{product.product_id}}">
-                    <input type="submit" value="Add to Cart" class="add-to-cart">
+                    <a href="{{ url_for('product', product_id=product.product_id) }}">
+                    <input type="submit" value="Add to Cart" class="add-to-cart"></a>
+                    
                 </div>
                 {% endfor %}
-            </form>
+            <!-- </form> -->
             <div class="pagination_bar">
                 {% if page==1 %}
                 {% else %}
