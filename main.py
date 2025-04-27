@@ -313,13 +313,16 @@ def search():
 
         return render_template('customer.html', account=account, page=1, search_query=search_query, products=products)
 
-@app.route('/product/<int:product_id>')
+@app.route('/product/<int:product_id>', methods=['GET','POST'])
 def product(product_id):
 # select info from the products table using product id
     with engine.begin() as conn:
         products = conn.execute(text('SELECT * FROM products WHERE product_id =:product_id'),{'product_id':product_id}).fetchone()
 # had to change product_id=product_id to product=product because the page needs all the product info and i was getting error
-    return render_template('product.html', product=product)
+    return render_template('product.html', product=products)
+
+
+# add to cart
 
 # *** END OF CUSTOMER FUNCTIONALITY ***
 
