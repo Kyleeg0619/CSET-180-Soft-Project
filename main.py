@@ -97,7 +97,6 @@ def login():
   
 # *** Admin Page ***
 @app.route('/admin')
-def admin():
     if 'username' not in session:
         return redirect(url_for('login'))
     with engine.begin() as conn:
@@ -125,7 +124,6 @@ def admin_add_product():
         product_warranty = product_warranty_raw if product_warranty_raw else None
         original_price = float(original_price_raw) if original_price_raw else None
         discount_price = float(discount_price_raw) if discount_price_raw else None
-        
 
         colors_json = json.dumps([c.strip() for c in request.form['product_color'].split(',')])
         sizes_json = json.dumps([c.strip() for c in request.form['product_sizes'].split(',')])
