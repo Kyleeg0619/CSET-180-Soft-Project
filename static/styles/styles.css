@@ -1,6 +1,6 @@
 :root {
     --Violet--: #8c5383;
-    --pastel-purple--: #ffedfc;
+    --pastel-purple--: #f2deef;
     --lt-Violet--: #381941;
     --Celadon--: #d7e7c3;
 }
@@ -21,7 +21,7 @@
     src: url(../fonts/roundedvale.ttf);
 }
 
-body, button, input {
+body {
     font-family: Titlefont, Arial, Helvetica, sans-serif;
 }
 
@@ -301,85 +301,4 @@ body, button, input {
       margin: 10px auto;
     }
 
-    /* admin.html */
-      .ab{
-        background: var(--Celadon--);
-      }
-      .admin {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        flex-direction: column;
-      }
-      .admin h1 {
-        color: var(--lt-Violet--);
-        margin: 15px;
-        
-      }
-      .products {
-        display: flex;
-        flex-direction: column;
-        width: 80%;
-        height: 100%;
-        background: var(--Violet--);
-        border: var(--lt-Violet--)solid 1px;
-        box-shadow: 0px 0px 1.5px 1.5px var(--lt-Violet--);
-        border-radius: 2px;
-        margin-bottom: 20px;
-      }
-      .requests {
-        display: flex;
-        flex-direction: column;
-        width: 80%;
-        height: 100%;
-        background: var(--Violet--);
-        border: var(--lt-Violet--) solid 1px;
-        box-shadow: 0px 0px 1.5px 1.5px var(--lt-Violet--);
-        border-radius: 2px;
-        margin-bottom: 20px;
-      }
-
-      .sign-up {
-        font-family: 'Lato', sans-serif;
-        display: block;
-        border: 3px solid #381941;
-        background: none;
-        padding: 10px;
-        border-radius: 50px;
-        color: #381941;
-        margin: 5px auto;
-        font-size: 14px;
-        text-decoration: none;
-        padding: 15px 8px;
-        width: 60%;
-    }
-
-    .sign-up:hover {
-      background-color: #381941;
-      color: white;
-      transition: background-color 0.2s;
-  }
-
-  .product_form {
-    display: inline-block;
-    width: 200px;
-    font-size: 15px;
-    border: 3px solid var(--Violet--);
-    background: var(--pastel-purple--);
-    min-height: 400px;
-    align-items: center;
-    margin: 0 10px;
-    align-self: center;
-  }
-
-  .product_form img {
-    display: block;
-    width: 100px;
-    margin: 0 auto;
-  }
-
-  .product {
-    list-style-type: none;
-  }
-
+   

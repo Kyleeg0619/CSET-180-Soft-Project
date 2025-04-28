@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
-    .add_product {
+    .a_add_product {
       display: block;
       color: var(--lt-Violet--);
       padding: 15px;
@@ -17,7 +17,7 @@
       justify-self: center;
     }
 
-    .add_product img {
+    .a_add_product img {
       display: block;
       width: 50%;
       height: max-content;
@@ -53,9 +53,9 @@
       display: flex;
     }
 </style>
-<div class="add_product">
-    <h1>Edit A Product</h1>
-    <form action="{{ url_for('edit_product_submit', product_id=product.product_id) }}" method="POST">
+<div class="a_add_product">
+    <h1>Edit A Product</h1> 
+    <form action="{{ url_for('admin_edit_product_submit', product_id=product.product_id) }}" method="POST">
       <img src="{{ url_for('static', filename='images/tulip.png') }}" alt="sprout">
         <div class="product-form">
             <label for="product_name">Product Name: </label>
@@ -94,7 +94,7 @@
 
             <input type="hidden" name="product_id" value="{{product.product_id}}">
 
-            <button type="submit" id="submit" class="sign-up">Submit</button>
+            <button type="submit" id="submit" class="admin-btn">Submit</button>
         </div>
 
     </form>

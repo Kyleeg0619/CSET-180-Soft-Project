@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
-    .add_product {
+    .a_add_product {
       display: block;
       color: var(--lt-Violet--);
       padding: 15px;
@@ -17,7 +17,7 @@
       justify-self: center;
     }
 
-    .add_product img {
+    .a_add_product img {
       display: block;
       width: 50%;
       height: max-content;
@@ -30,7 +30,7 @@
       padding: 10px;
       border-radius: 20px;
       font-size: 1rem;
-      text-align: center;
+      text-align: left;
       align-content: center;
       width: 50%;
     }
@@ -53,9 +53,9 @@
       display: flex;
     }
 </style>
-<div class="add_product">
+<div class="a_add_product">
     <h1>Add A Product</h1>
-    <form action="{{ url_for('add_product') }}" method="POST">
+    <form action="{{ url_for('admin_add_product') }}" method="POST"> 
       <img src="{{ url_for('static', filename='images/sprout.png') }}" alt="sprout">
         <div class="product-form">
             <label for="product_name">Product Name: </label>
@@ -84,9 +84,11 @@
             <br>
             <label for="product_warranty">Product Warranty: </label>
             <input type="date" id="product_warranty" name="product_warranty" placeholder="if warranty...">
-            <button type="submit" id="submit" class="sign-up">Add Product</button>
+            <br>
+            <label for="vendor_username">Select Vendor: </label>
+            <input type="text" id="vendor_username" name="vendor_username" placeholder="enter Vendor username"required>
+            <button type="submit" id="submit" class="admin-btn">Add Product</button>
         </div>
-
     </form>
 </div>
 
