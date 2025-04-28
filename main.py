@@ -102,8 +102,13 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.clear()  # This clears EVERYTHING including 'cart'
+    session.pop('loggedin', None)
+    session.pop('username', None)
+    session.pop('user_id', None)
+    session.pop('user_type', None)
+    # DO NOT pop 'cart'
     return redirect(url_for('index'))
+
 
 
 # *** ADMIN FUNCTIONALITY ***
@@ -354,6 +359,7 @@ def add_to_cart():
     size = request.form['size']
     color = request.form['color']
     quantity = int(request.form['quantity'])
+    user_id = session['user_id']
 
     with engine.begin() as conn:
         product = conn.execute(
@@ -361,30 +367,42 @@ def add_to_cart():
             {'product_id': product_id}
         ).fetchone()
 
-    if product:
-        price = float(product.discount_price) if product.discount_price else float(product.original_price)
+        if product:
+            price = float(product.discount_price) if product.discount_price else float(product.original_price)
 
-        cart_item = {
-            'product_id': product_id,
-            'size': size,
-            'color': color,
-            'quantity': quantity,
-            'price': price
-        }
-
-        session['cart'].append(cart_item)
-        session.modified = True  
+            # Instead of session append, insert into DB
+            conn.execute(
+                text('''
+                    INSERT INTO cart_items (user_id, product_id, size, color, quantity, price)
+                    VALUES (:user_id, :product_id, :size, :color, :quantity, :price)
+                '''),
+                {
+                    'user_id': user_id,
+                    'product_id': product_id,
+                    'size': size,
+                    'color': color,
+                    'quantity': quantity,
+                    'price': price
+                }
+            )
 
     return redirect(url_for('product', product_id=product_id))
 
+
 @app.route('/cart')
 def view_cart():
-    if 'cart' not in session or len(session['cart']) == 0:
-        cart_items = []
-        total_price = 0
-    else:
-        cart_items = session['cart']
-        total_price = sum(item['price'] * item['quantity'] for item in cart_items)
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    with engine.begin() as conn:
+        cart_items = conn.execute(
+            text('SELECT * FROM cart_items WHERE user_id = :user_id'),
+            {'user_id': user_id}
+        ).fetchall()
+
+    total_price = sum(item.price * item.quantity for item in cart_items)
 
     return render_template('cart.html', cart_items=cart_items, total_price=total_price)
 
@@ -392,26 +410,36 @@ def view_cart():
 
 @app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
-    index = int(request.form['index'])
+    cart_item_id = int(request.form['cart_item_id'])
 
-    if 'cart' in session and 0 <= index < len(session['cart']):
-        session['cart'].pop(index)
-        session.modified = True
+    with engine.begin() as conn:
+        conn.execute(
+            text('DELETE FROM cart_items WHERE cart_item_id = :cart_item_id'),
+            {'cart_item_id': cart_item_id}
+        )
 
     return redirect(url_for('view_cart'))
 
 
 @app.route('/checkout')
 def checkout():
-    if 'cart' not in session or len(session['cart']) == 0:
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    with engine.begin() as conn:
+        cart_items = conn.execute(
+            text('SELECT * FROM cart_items WHERE user_id = :user_id'),
+            {'user_id': user_id}
+        ).fetchall()
+
+    if not cart_items:
         return redirect(url_for('view_cart'))
 
-    cart_items = session['cart']
-
-    total_price = sum(item['price'] * item['quantity'] for item in cart_items)
+    total_price = sum(item.price * item.quantity for item in cart_items)
 
     return render_template('checkout.html', cart_items=cart_items, total_price=total_price)
-
 
 
 @app.route('/place_order', methods=['POST'])
@@ -419,9 +447,6 @@ def place_order():
     full_name = request.form['full_name']
     address = request.form['address']
     payment_info = request.form['payment_info']
-
-    if 'cart' not in session or len(session['cart']) == 0:
-        return redirect(url_for('view_cart'))
 
     user_id = session['user_id']
     total_items = len(session['cart'])

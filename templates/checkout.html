@@ -92,6 +92,7 @@
                     <th>Size</th>
                     <th>Color</th>
                     <th>Quantity</th>
+                    <th>Total Price</th>
                 </tr>
             </thead>
             <tbody>
@@ -101,6 +102,7 @@
                     <td>{{ item.size | replace('[','') | replace(']','') | replace('"','') | replace("'",'') }}</td>
                     <td>{{ item.color | replace('[','') | replace(']','') | replace('"','') | replace("'",'') }}</td>
                     <td>{{ item.quantity }}</td>
+                    <td>${{ '%.2f' % (item.price * item.quantity) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -114,7 +116,7 @@
         <label for="address">Shipping Address</label>
         <input type="text" name="address" id="address" required>
 
-        <label for="payment_info">Payment Info</label>
+        <label for="payment_info">Card number</label>
         <input type="text" name="payment_info" id="payment_info" placeholder="Card Number" required>
 
         <button type="submit" class="checkout-button">Place Order</button>

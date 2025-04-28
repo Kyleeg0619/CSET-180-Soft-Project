@@ -89,21 +89,18 @@
                 <th>Size</th>
                 <th>Color</th>
                 <th>Quantity</th>
-                <th>Item Total</th> <!-- Added -->
+                <th>Item Total</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            {% set total_price = 0 %}
             {% for item in cart_items %}
-                {% set item_total = item.price * item.quantity %}
-                {% set total_price = total_price + item_total %}
             <tr>
                 <td>{{ item.product_id }}</td>
                 <td>{{ item.size | replace('[','') | replace(']','') | replace('"','') | replace("'",'') }}</td>
                 <td>{{ item.color | replace('[','') | replace(']','') | replace('"','') | replace("'",'') }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>${{ '%.2f' % item_total }}</td> <!-- Item total price -->
+                <td>${{ '%.2f' % (item.price * item.quantity) }}</td>
                 <td>
                     <form action="{{ url_for('remove_from_cart') }}" method="POST" style="display:inline;">
                         <input type="hidden" name="index" value="{{ loop.index0 }}">
@@ -114,6 +111,7 @@
             {% endfor %}
         </tbody>
     </table>
+    
 
     <div class="cart-total">
         Total Price: ${{ '%.2f' % total_price }}
