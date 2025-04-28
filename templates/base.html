@@ -10,13 +10,27 @@
   <body> 
     <header>
       <div class="topBar">
-          <img src="{{url_for('static',filename = 'images/logo.png')}}" alt="Logo" class="logo">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
           <h1 class="logo-title">eGarden</h1>
+          
           <ul class="barItem">
-            <li><a href="/">home</a></li>
+              <li><a href="/">home</a></li>
+    
+              {% if session.get('loggedin') and session.get('user_type') == 'Customer' %}
+                  <li>
+                      <a href="{{ url_for('view_cart') }}" class="cart-link">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="cart-icon" viewBox="0 0 16 16">
+                              <path d="M0 1a1 1 0 0 1 1-1h1.22a.5.5 0 0 1 .478.645L2.89 2H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.491-.408L2.01 2.607 1.61 1H1a1 1 0 0 1-1-1zM5 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm8-1a1 1 0 1 0 1 1 1 1 0 0 0-1-1z"/>
+                          </svg>
+                          ({{ session['cart']|length if session.get('cart') else 0 }})
+                      </a>
+                  </li>
+              {% endif %}
           </ul>     
       </div>
     </header>
+    
+  
 
     {% block content %}
     {% endblock %}

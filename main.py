@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
 
 # *** Connect Database ***
-conn_str = "mysql+pymysql://root:CSET155@localhost/egarden"
+conn_str = "mysql+pymysql://root:CSET115@localhost/egarden"
 engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
@@ -67,7 +67,8 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     msg = ''
-    account = None  # Ensure 'account' is initialized
+    account = None
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -77,21 +78,33 @@ def login():
             return redirect(url_for('admin'))
         else:
             with engine.begin() as conn:
-                account = conn.execute(text('SELECT * FROM Users WHERE username = :username OR email = :email'), {'username': username,'email':email}).fetchone()
+                account = conn.execute(
+                    text('SELECT * FROM Users WHERE username = :username OR email = :email'),
+                    {'username': username, 'email': email}
+                ).fetchone()
 
-                if account and check_password_hash(account.password, password):
-                    session['loggedin'] = True
-                    session['username'] = account.username
-                    session['user_id'] = account.user_id
-                    print("Session set: ", session.get('username'))
-                    if account.user_type == 'Vendor':
-                        return redirect(url_for('vendor'))
-                    else:
-                        return redirect(url_for('customer'))
+            if account and check_password_hash(account.password, password):
+                session['loggedin'] = True
+                session['username'] = account.username
+                session['user_id'] = account.user_id
+                session['user_type'] = account.user_type
+                session['cart'] = []
+                print("Session set: ", session.get('username'))
+
+                if account.user_type == 'Vendor':
+                    return redirect(url_for('vendor'))
                 else:
-                    msg = 'Incorrect username, email or password.'
+                    return redirect(url_for('customer'))
+            else:
+                msg = 'Incorrect username, email or password.'  # <-- correctly here
 
     return render_template('login.html', msg=msg, account=account)
+
+@app.route('/logout')
+def logout():
+    session.clear()  # This clears EVERYTHING including 'cart'
+    return redirect(url_for('index'))
+
 
 # *** ADMIN FUNCTIONALITY ***
 @app.route('/admin')
@@ -323,6 +336,115 @@ def product(product_id):
 
 
 # add to cart
+@app.before_request
+def make_cart_if_needed():
+    if 'loggedin' in session and session.get('user_type') == 'Customer':
+        if 'cart' not in session:
+            session['cart'] = []
+    else:
+        session.pop('cart', None)
+
+
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    product_id = request.form['product_id']
+    size = request.form['size']
+    color = request.form['color']
+    quantity = int(request.form['quantity'])
+
+    with engine.begin() as conn:
+        product = conn.execute(
+            text('SELECT original_price, discount_price FROM products WHERE product_id = :product_id'),
+            {'product_id': product_id}
+        ).fetchone()
+
+    if product:
+        price = float(product.discount_price) if product.discount_price else float(product.original_price)
+
+        cart_item = {
+            'product_id': product_id,
+            'size': size,
+            'color': color,
+            'quantity': quantity,
+            'price': price
+        }
+
+        session['cart'].append(cart_item)
+        session.modified = True  
+
+    return redirect(url_for('product', product_id=product_id))
+
+@app.route('/cart')
+def view_cart():
+    if 'cart' not in session or len(session['cart']) == 0:
+        cart_items = []
+        total_price = 0
+    else:
+        cart_items = session['cart']
+        total_price = sum(item['price'] * item['quantity'] for item in cart_items)
+
+    return render_template('cart.html', cart_items=cart_items, total_price=total_price)
+
+
+
+@app.route('/remove_from_cart', methods=['POST'])
+def remove_from_cart():
+    index = int(request.form['index'])
+
+    if 'cart' in session and 0 <= index < len(session['cart']):
+        session['cart'].pop(index)
+        session.modified = True
+
+    return redirect(url_for('view_cart'))
+
+
+@app.route('/checkout')
+def checkout():
+    if 'cart' not in session or len(session['cart']) == 0:
+        return redirect(url_for('view_cart'))
+
+    cart_items = session['cart']
+
+    total_price = sum(item['price'] * item['quantity'] for item in cart_items)
+
+    return render_template('checkout.html', cart_items=cart_items, total_price=total_price)
+
+
+
+@app.route('/place_order', methods=['POST'])
+def place_order():
+    full_name = request.form['full_name']
+    address = request.form['address']
+    payment_info = request.form['payment_info']
+
+    if 'cart' not in session or len(session['cart']) == 0:
+        return redirect(url_for('view_cart'))
+
+    user_id = session['user_id']
+    total_items = len(session['cart'])
+    now = datetime.datetime.now()
+
+    with engine.begin() as conn:
+
+        conn.execute(text('''
+            INSERT INTO orders (user_id, full_name, address, payment_info, order_date, total_items)
+            VALUES (:user_id, :full_name, :address, :payment_info, :order_date, :total_items)
+        '''), {
+            'user_id': user_id,
+            'full_name': full_name,
+            'address': address,
+            'payment_info': payment_info,
+            'order_date': now,
+            'total_items': total_items
+        })
+
+    session['cart'] = []
+    session.modified = True
+
+    return render_template('thank_you.html', full_name=full_name)
 
 # *** END OF CUSTOMER FUNCTIONALITY ***
 

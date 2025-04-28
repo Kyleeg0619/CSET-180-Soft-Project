@@ -78,6 +78,20 @@ body, button, input {
       text-align: center;
       display: block;
     }
+
+    .cart-link {
+      font-weight: bold;
+      font-size: 16px;
+      color: var(--Violet--, #8c5383); 
+      text-decoration: none;
+      position: relative;
+  }
+  
+  .cart-link:hover {
+      color: #7a52c2; 
+      text-decoration: underline;
+  }
+  
   
     /* FOOTER */
     *, *:before, *:after {

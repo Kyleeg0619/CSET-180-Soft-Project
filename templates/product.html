@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
+    body {
+            background-image: url("{{ url_for('static', filename='images/pastel_background.jpg') }}");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+    }
     .product {
         display: inline-block;
         background: var(--pastel-purple--);
@@ -8,76 +14,148 @@
         border-radius: 20px;
         width: 300px;
         color: var(--Violet--);
-        margin: 5px;
+        margin: 20px auto;
         height: 450px;
-        overflow-y: scroll;
+        overflow-y: auto;
+        padding: 20px;
         position: relative;
-        scrollbar-width: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0,0.15);
     }
 
     .product img {
         display: block;
         width: 80%;
+        height: auto;
         margin: 0 auto;
+        border-radius: 10px;
     }
 
     .product ul {
-        margin: 10px;
+        margin: 0 0 20px 0;
+        padding: 0;
         list-style: none;
+        text-align: left;
+    }
+
+    .product ul li {
+        margin-bottom: 12px; 
+        line-height: 1.5; 
+        font-size: 14px;
     }
 
     .product_name {
         font-weight: bold;
-        font-size: 20px;
+        font-size: 24px;
+        margin: 15px 0;
+    }
+
+    .selection-form{
+        text-align: left;
+        margin-top: 10px;
+    }
+
+    .selection-form label{
+        font-weight: bold;
+        display: block;
         margin-bottom: 5px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
     }
 
-    .product_info {
-        font-size: 12px;
-    }
-    .product-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 15px;
+    .section-form button{
+        background-color: var(--Violet--);
+        color:white;
+        font-weight: bold;
+        cursor: pointer;
     }
 
-    .price {
-        display: inline-block;
+    .selection-form button:hover{
+        background-color: var(--Violet--)
     }
 
-    .original-discounted {
-        font-size: 10px;
-        text-decoration: line-through;
+    #x-icon {
+        font-size: 18px;
+        cursor: pointer;
+        color: var(--Violet--, #5d3a9b);
+        transition: color 0.2s ease;
+    }
+
+    #x-icon:hover {
+        color: #ff6b6b;
     }
 
 </style>
-<h1>Product info page</h1>
 
-<!-- this is only to see if the page actually works  -->
-<div class="product">
-    <p id="x-icon">&#10005;</p>
-    <hr>
-    <h1 class="product_name">{{product.product_name}}</h1>
+<body>
+    <h1>Product Info Page</h1>
 
-    <img src="../static/images/sprout.PNG" alt="">
-    <ul>
-        <li><strong>Product ID:</strong> {{product.product_id}}</li>
-        <li><strong>Product Description: </strong>{{product.product_desc}}</li>
+    <div class="product">
+        <p id="x-icon">&#10005;</p>
 
-        <li><strong>Product Sizes:</strong> {{product.product_sizes}}</li>
-        <li><strong> Currently Available:</strong> {{product.product_quantity}}</li>
-        <li><strong>Product Original Price:</strong> {{product.original_price}}</li>
-        <li><strong>Product Discount Price:</strong> {{product.discount_price}}</li>
-        <li><strong>Discount Ends:</strong> {{product.discount_date_end}}</li>
-        <li><strong>Product Warranty:</strong> {{product.product_warranty}}</li>
-        <li><strong>Sold By:</strong> {{product.vendor_username}}</li>
+        <h1 class="product_name">{{ product.product_name }}</h1>
 
-        
-    </ul>
-<!-- product_id, product_name, product_desc, product_color, 
- product_sizes, product_quantity, original_price, discount_price, 
- product_warranty, vendor_username, discount_date_end -->
-    
-</div>
+        <img src="{{ url_for('static', filename='images/sprout.PNG') }}" alt="Product Image">
+
+        <ul>
+            <li><strong>Product ID:</strong> {{ product.product_id }}</li>
+            <li><strong>Description:</strong> {{ product.product_desc }}</li>
+            <li><strong>Sizes:</strong> {{ product.product_sizes }}</li>
+            <li><strong>Available:</strong> {{ product.product_quantity }}</li>
+            <li><strong>Original Price:</strong> ${{ product.original_price }}</li>
+            <li><strong>Discount Price:</strong> 
+                {% if product.discount_price %}
+                    ${{ product.discount_price }}
+                {% else %}
+                    None
+                {% endif %}
+            </li>
+            <li><strong>Discount Ends:</strong> 
+                {% if product.discount_date_end %}
+                    {{ product.discount_date_end }}
+                {% else %}
+                    None
+                {% endif %}
+            </li>
+            <li><strong>Sold By:</strong> {{ product.vendor_username }}</li>
+        </ul>
+
+        <form class="selection-form" action="/add_to_cart" method="POST">
+            
+            <!-- Size -->
+            <label for="size_{{ product.product_id }}">Choose Size:</label>
+            <select name="size" id="size_{{ product.product_id }}" required>
+                <option value="">-- Select Size --</option>
+                {% if product.product_sizes %}
+                    {% for size in product.product_sizes.split(',') %}
+                        <option value="{{ size.strip() }}">{{ size.strip() }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+            <!-- Color -->
+            <label for="color_{{ product.product_id }}">Choose Color:</label>
+            <select name="color" id="color_{{ product.product_id }}" required>
+                <option value="">-- Select Color --</option>
+                {% if product.product_color %}
+                    {% for color in product.product_color.split(',') %}
+                        <option value="{{ color.strip() }}">{{ color.strip() }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+            <!-- Quantity -->
+            <label for="quantity_{{ product.product_id }}">Choose Quantity:</label>
+            <select name="quantity" id="quantity_{{ product.product_id }}" required>
+                <option value="">-- Select Quantity --</option>
+                {% for i in range(1, product.product_quantity + 1) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="hidden" name="product_id" value="{{ product.product_id }}">
+            <button type="submit">Add to Cart</button>
+        </form>
+
+    </div>
+</body>
 {% endblock %}

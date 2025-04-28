@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="cart-container" style="text-align:center;">
+    <h1 class="cart-title">Thank you, {{ full_name }}!</h1>
+    <p>Your order has been placed successfully.</p>
+    <a href="{{ url_for('customer') }}" class="purchase-button" style="margin-top: 20px;">Continue Shopping</a>
+</div>
+{% endblock %}
