@@ -64,17 +64,32 @@
             <label for="product_desc">Product Description: </label>
             <input type="text" id="product_desc" name="product_desc" value="{{product.product_desc}}" required>
             <br> 
-            <label for="product_color">Product Color (Comma Separated): </label>
-            <input type="text" id="product_color" name="product_color" 
-       placeholder="e.g., Red, Blue, Green" 
-       value="{{ ', '.join(json.loads(product.product_color)) if product.product_color else '' }}" required>
+            <label for="product_color">Product Color: </label>
+            <br>
+            <input type="checkbox" name="colors" id="" value="Red"><label for="colors">Red</label>
+            <br>
+
+            <input type="checkbox" name="colors" id="" value="Yellow"><label for="colors">Yellow</label>
+            <br>
+
+            <input type="checkbox" name="colors" id="" value="Green"><label for="colors">Green</label>
+            <br>
+
+            <input type="checkbox" name="colors" id="" value="Blue"><label for="colors">Blue</label>
+            <br>
+
+            <input type="checkbox" name="colors" id="" value="Purple"><label for="colors">Purple</label>
 
             <br>
-            <label for="product_sizes">Product Sizes (Comma Separated): </label>
-            <input type="text" id="product_sizes" name="product_sizes" 
-       placeholder="e.g., Small, Medium, Large" 
-       value="{{ ', '.join(json.loads(product.product_sizes)) if product.product_sizes else '' }}" required>
+            <label for="product_sizes">Product Sizes: </label>
+            <br>
+            <input type="checkbox" name="sizes" id="" value="Small"><label for="sizes">Small</label>
+            <br>
 
+            <input type="checkbox" name="sizes" id="" value="Medium"><label for="sizes">Medium</label>
+            <br>
+
+            <input type="checkbox" name="sizes" id="" value="Large"><label for="sizes">Large</label>
             <br>
             <label for="product_quantity">Product Quantity: </label>
             <input type="number" id="product_quantity" name="product_quantity" value="{{product.product_quantity}}" required>
