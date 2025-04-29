@@ -340,15 +340,6 @@ def product(product_id):
     return render_template('product.html', product=products)
 
 
-# add to cart
-@app.before_request
-def make_cart_if_needed():
-    if 'loggedin' in session and session.get('user_type') == 'Customer':
-        if 'cart' not in session:
-            session['cart'] = []
-    else:
-        session.pop('cart', None)
-
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -363,28 +354,29 @@ def add_to_cart():
 
     with engine.begin() as conn:
         product = conn.execute(
-            text('SELECT original_price, discount_price FROM products WHERE product_id = :product_id'),
+            text('SELECT product_quantity, original_price, discount_price FROM products WHERE product_id = :product_id'),
             {'product_id': product_id}
         ).fetchone()
 
-        if product:
-            price = float(product.discount_price) if product.discount_price else float(product.original_price)
+        if not product or product.product_quantity < quantity:
+            return "Error: Product is sold out or not enough stock."
 
-            # Instead of session append, insert into DB
-            conn.execute(
-                text('''
-                    INSERT INTO cart_items (user_id, product_id, size, color, quantity, price)
-                    VALUES (:user_id, :product_id, :size, :color, :quantity, :price)
-                '''),
-                {
-                    'user_id': user_id,
-                    'product_id': product_id,
-                    'size': size,
-                    'color': color,
-                    'quantity': quantity,
-                    'price': price
-                }
-            )
+        price = float(product.discount_price) if product.discount_price else float(product.original_price)
+
+        conn.execute(
+            text('''
+                INSERT INTO cart_items (user_id, product_id, size, color, quantity, price)
+                VALUES (:user_id, :product_id, :size, :color, :quantity, :price)
+            '''),
+            {
+                'user_id': user_id,
+                'product_id': product_id,
+                'size': size,
+                'color': color,
+                'quantity': quantity,
+                'price': price
+            }
+        )
 
     return redirect(url_for('product', product_id=product_id))
 
@@ -442,18 +434,28 @@ def checkout():
     return render_template('checkout.html', cart_items=cart_items, total_price=total_price)
 
 
-@app.route('/place_order', methods=['POST'])
+@app.route('/place_order', methods=['GET', 'POST'])
 def place_order():
     full_name = request.form['full_name']
     address = request.form['address']
     payment_info = request.form['payment_info']
-
     user_id = session['user_id']
-    total_items = len(session['cart'])
     now = datetime.datetime.now()
 
     with engine.begin() as conn:
+        cart_items = conn.execute(text('''
+            SELECT ci.*, p.product_name, p.product_quantity
+            FROM cart_items ci
+            JOIN products p ON ci.product_id = p.product_id
+            WHERE ci.user_id = :user_id
+        '''), {'user_id': user_id}).fetchall()
 
+        if not cart_items:
+            return redirect(url_for('view_cart'))
+
+        total_price = sum(item.price * item.quantity for item in cart_items)
+
+        # Insert the order
         conn.execute(text('''
             INSERT INTO orders (user_id, full_name, address, payment_info, order_date, total_items)
             VALUES (:user_id, :full_name, :address, :payment_info, :order_date, :total_items)
@@ -463,13 +465,56 @@ def place_order():
             'address': address,
             'payment_info': payment_info,
             'order_date': now,
-            'total_items': total_items
+            'total_items': len(cart_items)
         })
 
-    session['cart'] = []
-    session.modified = True
+        # Update product quantities
+        for item in cart_items:
+            conn.execute(
+                text('''
+                    UPDATE products
+                    SET product_quantity = product_quantity - :qty
+                    WHERE product_id = :pid AND product_quantity >= :qty
+                '''),
+                {'qty': item.quantity, 'pid': item.product_id}
+            )
 
-    return render_template('thank_you.html', full_name=full_name)
+        # Clear cart
+        conn.execute(
+            text('DELETE FROM cart_items WHERE user_id = :user_id'),
+            {'user_id': user_id}
+        )
+
+    return render_template(
+        'thank_you.html',
+        full_name=full_name,
+        cart_items=cart_items,
+        total_price=total_price,
+        card_number=payment_info,
+        order_date=now.strftime("%B %d, %Y")
+    )
+
+@app.route('/thank_you')
+def thank_you():
+    return render_template('thank_you.html')
+
+@app.route('/orders')
+def view_orders():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    with engine.begin() as conn:
+        # Get all past orders for this user
+        orders = conn.execute(text('''
+            SELECT * FROM orders 
+            WHERE user_id = :user_id
+            ORDER BY order_date DESC
+        '''), {'user_id': user_id}).fetchall()
+
+    return render_template('view_orders.html', orders=orders)
+
 
 # *** END OF CUSTOMER FUNCTIONALITY ***
 

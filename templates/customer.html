@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
+   body{
+        background-image: url("{{ url_for('static', filename='images/pastel_background.jpg') }}");
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+}
     .store-page {
         display: flex;
         margin: 30px auto;
@@ -183,6 +189,7 @@
     }
 
 </style>
+<body>
     <section class="store-page">
         <section id="side-bar">
             <div class="user-info">
@@ -195,6 +202,8 @@
                         <li>Username: {{account.username}}</li>
                         <li>Fullname: {{account.first_name + ' ' + account.last_name}}</li>
                         <li>Email: {{account.email}}</li>
+                        <a href="{{ url_for('view_orders') }}">View Orders</a>
+
                     </ul>
                 </div>
             </div>
@@ -253,7 +262,7 @@
                     </ul>
                     <input type="hidden" value="{{product.product_id}}">
                     <a href="{{ url_for('product', product_id=product.product_id) }}">
-                    <input type="submit" value="Add to Cart" class="add-to-cart"></a>
+                    <input type="submit" value="View Product Details" class="add-to-cart"></a>
                     
                 </div>
                 {% endfor %}
@@ -270,4 +279,5 @@
             </div>
         </section>
     </section>
+</body>
 {% endblock %}

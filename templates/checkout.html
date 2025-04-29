@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
+body{
+    background-image: url("{{ url_for('static', filename='images/pastel_background.jpg') }}");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
 .checkout-container {
     background-image: url("{{ url_for('static', filename='images/pastel_background.jpg') }}");
     background-position: center;

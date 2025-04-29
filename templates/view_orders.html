@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    body{
+        background-color: pink;
+    }
+    .orders-container {
+        background: #fff;
+        padding: 30px;
+        width: 80%;
+        margin: 50px auto;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .orders-title {
+        font-size: 32px;
+        text-align: center;
+        margin-bottom: 25px;
+        color: var(--Violet--, #8c5383);
+    }
+
+    .order-box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 15px;
+        background-color: var(--pastel-purple--, #ffedfc);
+    }
+
+    .order-box h3 {
+        margin-top: 0;
+        color: #333;
+    }
+
+    .order-box p {
+        margin: 8px 0;
+    }
+</style>
+<body>
+<div class="orders-container">
+    <h1 class="orders-title">Your Past Orders</h1>
+
+    {% if orders %}
+        {% for order in orders %}
+        <div class="order-box">
+            <h3>Order #{{ order.order_id }}</h3>
+            <p><strong>Date:</strong> {{ order.order_date.strftime('%B %d, %Y') }}</p>
+            <p><strong>Shipping Address:</strong> {{ order.full_name }} – {{ order.address }}</p>
+            <p><strong>Order Status:</strong> </p>
+            <p><strong>Payment Info:</strong> {{ order.payment_info }}</p>
+            <p><strong>Total Items:</strong> {{ order.total_items }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align:center;">You have no past orders.</p>
+    {% endif %}
+</div>
+</body>
+{% endblock %}
