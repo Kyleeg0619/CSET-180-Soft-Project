@@ -1,6 +1,7 @@
 :root {
   --Violet--: #8c5383;
   --pastel-purple--: #ffedfc;
+  --grey-purple--: #f7e6ff;
   --lt-Violet--: #381941;
   --Celadon--: #d7e7c3;
 }
@@ -317,17 +318,18 @@ body, button, input {
       margin: 15px;
       
     }
+
     .products {
       display: flex;
-      flex-direction: column;
-      width: 80%;
-      height: 100%;
-      background: var(--Violet--);
-      border: var(--lt-Violet--)solid 1px;
-      box-shadow: 0px 0px 1.5px 1.5px var(--lt-Violet--);
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 90%;
       border-radius: 2px;
-      margin-bottom: 20px;
-    }
+      padding: 20px;
+      margin: 20px auto;
+    } 
+
     .requests {
       display: flex;
       flex-direction: column;
@@ -343,7 +345,7 @@ body, button, input {
     .sign-up {
       font-family: 'Lato', sans-serif;
       display: block;
-      border: 3px solid #381941;
+      border: 3px solid var(--Violet--);
       background: none;
       padding: 10px;
       border-radius: 50px;
@@ -363,14 +365,14 @@ body, button, input {
 
 .product_form {
   display: inline-block;
-  width: 200px;
-  font-size: 15px;
-  border: 3px solid var(--Violet--);
+  width: 300px;
   background: var(--pastel-purple--);
   min-height: 400px;
   align-items: center;
   margin: 0 10px;
   align-self: center;
+  border-radius: 15px;
+  box-shadow: 5px 5px 10px #b168a633;
 }
 
 .product_form img {
@@ -381,4 +383,17 @@ body, button, input {
 
 .product {
   list-style-type: none;
+  padding: 20px;
+}
+
+#x-icon {
+  color: var(--Violet--);
+  padding: 5px 12px;
+  font-weight: 900;
+  font-size: 20px;
+}
+
+hr {
+  display: block;
+  border: 1px solid var(--Violet--);
 }

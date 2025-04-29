@@ -266,10 +266,6 @@ def vendor():
 
     return render_template('vendor.html', reviews=reviews, products=products, username=username)
 
-@app.route('/vendor/products/modify_product')
-def modify_products():
-    return render_template('modify_products.html')
-
 @app.route('/vendor/products/add_product', methods=["GET",'POST'])
 def add_product():
     if 'username' not in session:
@@ -289,15 +285,17 @@ def add_product():
         original_price = float(original_price_raw) if original_price_raw else None
         discount_price = float(discount_price_raw) if discount_price_raw else None
 
-        colors_json = json.dumps([c.strip() for c in request.form['product_color'].split(',')])
-        sizes_json = json.dumps([c.strip() for c in request.form['product_sizes'].split(',')])
+        colors = request.form.getlist('colors')
+        sizes = request.form.getlist('sizes')
+        colors_str = ','.join(colors)
+        sizes_str = ','.join(sizes)
 
         with engine.begin() as conn:
             conn.execute(text('INSERT INTO products (product_name, product_desc, product_color, product_sizes, product_quantity, original_price, discount_price, discount_date_end, product_warranty, vendor_username) VALUES (:product_name, :product_desc, :product_color, :product_sizes, :product_quantity, :original_price, :discount_price, :discount_date_end, :product_warranty, :vendor_username)'), {
                 'product_name': product_name,
                 'product_desc': product_desc,
-                'product_color': colors_json,
-                'product_sizes': sizes_json,
+                'product_color': colors_str,
+                'product_sizes': sizes_str,
                 'product_quantity':product_quantity,
                 'original_price': original_price,
                 'discount_price': discount_price,
@@ -307,8 +305,6 @@ def add_product():
             msg = 'You have successfully added a product.'
             return redirect(url_for('vendor'))
     return render_template('add_product.html')
-
-
 
 @app.route('/vendor/products/edit_product/<int:product_id>', methods=["GET", "POST"])
 def edit_product(product_id):
@@ -321,14 +317,9 @@ def edit_product(product_id):
         if not product:
             return 'Product not found or you don\'t have permission.', 403
 
-        product_colors = json.loads(product.product_color)
-        product_sizes = json.loads(product.product_sizes)
-
     return render_template(
         'edit_product.html',
-        product=product,
-        product_colors=product_colors,
-        product_sizes=product_sizes, json=json
+        product=product
     )
 
 @app.route('/edit_product_submit/<int:product_id>', methods=['POST'])
@@ -336,34 +327,21 @@ def edit_product_submit(product_id):
     if request.method == "POST":
         product_name = request.form['product_name']
         product_desc = request.form['product_desc']
-        product_color_raw = request.form['product_color'].split(', ')
-        product_sizes_raw = request.form['product_sizes'].split(', ')
         product_quantity = request.form['product_quantity']
         original_price_raw = request.form['original_price'].strip()
         discount_price_raw = request.form['discount_price'].strip()
         discount_date_end_raw = request.form['discount_date_end'].strip()
         product_warranty_raw = request.form['product_warranty'].strip()
-
-        # Handle the colors and sizes if empty or None
-        if not product_color_raw:
-            product_color = []  # or empty list if you're saving it as a JSON field
-        else:
-            product_color = [color.strip() for color in product_color_raw]
-
-        if not product_sizes_raw:
-            product_sizes = []  # or empty list
-        else:
-            product_sizes = [size.strip() for size in product_sizes_raw]
+        colors = request.form.getlist('colors')
+        sizes = request.form.getlist('sizes')
+        colors_str = ','.join(colors)
+        sizes_str = ','.join(sizes)
 
         # Fix to handle 'None' string and empty fields for prices
         original_price = float(original_price_raw) if original_price_raw and original_price_raw != 'None' else None
         discount_price = float(discount_price_raw) if discount_price_raw and discount_price_raw != 'None' else None
         discount_date_end = discount_date_end_raw if discount_date_end_raw else None
         product_warranty = product_warranty_raw if product_warranty_raw else None
-
-        # Convert colors and sizes to JSON format
-        colors_json = json.dumps([color.strip() for color in product_color])
-        sizes_json = json.dumps([size.strip() for size in product_sizes])
 
         with engine.begin() as conn:
             conn.execute(text('''
@@ -383,8 +361,8 @@ def edit_product_submit(product_id):
             {
                 'product_name': product_name,
                 'product_desc': product_desc,
-                'product_color': colors_json,
-                'product_sizes': sizes_json,
+                'product_color': colors_str,
+                'product_sizes': sizes_str,
                 'product_quantity': product_quantity,
                 'original_price': original_price,
                 'discount_price': discount_price,
@@ -394,7 +372,7 @@ def edit_product_submit(product_id):
                 'product_id': product_id
             })
             return redirect(url_for('vendor'))
-
+        
 @app.route('/vendor/chat', methods=['GET', 'POST'])
 def chat():
     messages = []
@@ -450,10 +428,73 @@ def handle_product_action():
     if action == 'edit':
         return redirect(url_for('edit_product', product_id=product_id))
 
+# *** CUSTOMER FUNCTIONALITY ***
+@app.route('/customer')
+@app.route('/customer/<page>')
+def customer(page=1):
+    username = session['username']
 
+    page = int(page)
+    per_page = 6
+    page_limit = (page-1)*per_page
 
+    with engine.begin() as conn:
 
+        account = conn.execute(text('SELECT * FROM users WHERE username = :username'), {'username':username}).fetchone()
+        
+        products = conn.execute(text('SELECT * FROM products LIMIT :per_page OFFSET :page'),{'per_page':per_page,'page':page_limit}).fetchall()
 
+    return render_template('customer.html', account=account, products=products, page=page, per_page=per_page)
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        data = request.form
+    else:
+        data = request.args
+
+    search_query = data.get('query', '').strip()
+    color_filter = data.get('color-filter', '').strip()
+    size_filter = data.get('size-filter', '').strip()
+    stock_filter = data.get('stock-filter', '').strip()
+    
+    with engine.begin() as conn:
+        username = session['username']
+        account = conn.execute(text('SELECT * FROM users WHERE username = :username'), {'username':username}).fetchone()
+
+        if not search_query and not color_filter and not size_filter and not stock_filter:
+            return redirect(url_for('customer'))
+
+        sql = 'SELECT * FROM products WHERE 1=1'
+        params = {}
+
+        if search_query:
+            sql += ' AND (product_name LIKE :search_query OR product_desc LIKE :search_query OR vendor_username LIKE :search_query)'
+            params['search_query'] = f'%{search_query}%'
+
+        if color_filter:
+            sql += ' AND product_color = :color_filter'
+            params['color_filter'] = color_filter
+
+        if size_filter:
+            sql += ' AND product_sizes = :size_filter'
+            params['size_filter'] = size_filter
+
+        if stock_filter:
+            if stock_filter == 'available':
+                sql += ' AND product_quantity > 0'
+            else:
+                sql += ' AND product_quantity = 0'
+
+        products = conn.execute(text(sql), params).fetchall()
+
+        return render_template('customer.html', account=account, page=1, search_query=search_query, products=products)
+
+@app.route('/product/<int:product_id>')
+def product(product_id):
+    render_template('product.html', product_id=product_id)
+
+# *** END OF CUSTOMER FUNCTIONALITY ***
 
 # *** Run & Debug ***
 if __name__ == '__main__':
