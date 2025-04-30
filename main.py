@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
 
 # *** Connect Database ***
-conn_str = "mysql+pymysql://root:Ky31ik3$m0s$;@localhost/egarden"
+conn_str = "mysql+pymysql://root:CSET115@localhost/egarden"
 engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
@@ -67,7 +67,8 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     msg = ''
-    account = None  # Ensure 'account' is initialized
+    account = None
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -79,23 +80,40 @@ def login():
             return redirect(url_for('admin'))
         else:
             with engine.begin() as conn:
-                account = conn.execute(text('SELECT * FROM Users WHERE username = :username OR email = :email'), {'username': username,'email':email}).fetchone()
+                account = conn.execute(
+                    text('SELECT * FROM Users WHERE username = :username OR email = :email'),
+                    {'username': username, 'email': email}
+                ).fetchone()
 
-                if account and check_password_hash(account.password, password):
-                    session['loggedin'] = True
-                    session['username'] = account.username
-                    session['user_id'] = account.user_id
-                    print("Session set: ", session.get('username'))
-                    if account.user_type == 'Vendor':
-                        return redirect(url_for('vendor'))
-                    else:
-                        return redirect(url_for('customer'))
+            if account and check_password_hash(account.password, password):
+                session['loggedin'] = True
+                session['username'] = account.username
+                session['user_id'] = account.user_id
+                session['user_type'] = account.user_type
+                session['cart'] = []
+                print("Session set: ", session.get('username'))
+
+                if account.user_type == 'Vendor':
+                    return redirect(url_for('vendor'))
                 else:
-                    msg = 'Incorrect username, email or password.'
+                    return redirect(url_for('customer'))
+            else:
+                msg = 'Incorrect username, email or password.'  # <-- correctly here
 
     return render_template('login.html', msg=msg, account=account)
-  
-# *** Admin Page ***
+
+@app.route('/logout')
+def logout():
+    session.pop('loggedin', None)
+    session.pop('username', None)
+    session.pop('user_id', None)
+    session.pop('user_type', None)
+    # DO NOT pop 'cart'
+    return redirect(url_for('index'))
+
+
+
+# *** ADMIN FUNCTIONALITY ***
 @app.route('/admin')
 def admin():
     if 'username' not in session:
@@ -474,9 +492,190 @@ def search():
 
         return render_template('customer.html', account=account, page=1, search_query=search_query, products=products)
 
-@app.route('/product/<int:product_id>')
+@app.route('/product/<int:product_id>', methods=['GET','POST'])
 def product(product_id):
-    render_template('product.html', product_id=product_id)
+# select info from the products table using product id
+    with engine.begin() as conn:
+        products = conn.execute(text('SELECT * FROM products WHERE product_id =:product_id'),{'product_id':product_id}).fetchone()
+# had to change product_id=product_id to product=product because the page needs all the product info and i was getting error
+    return render_template('product.html', product=products)
+
+
+
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    product_id = request.form['product_id']
+    size = request.form['size']
+    color = request.form['color']
+    quantity = int(request.form['quantity'])
+    user_id = session['user_id']
+
+    with engine.begin() as conn:
+        product = conn.execute(
+            text('SELECT product_quantity, original_price, discount_price FROM products WHERE product_id = :product_id'),
+            {'product_id': product_id}
+        ).fetchone()
+
+        if not product or product.product_quantity < quantity:
+            return "Error: Product is sold out or not enough stock."
+
+        price = float(product.discount_price) if product.discount_price else float(product.original_price)
+
+        conn.execute(
+            text('''
+                INSERT INTO cart_items (user_id, product_id, size, color, quantity, price)
+                VALUES (:user_id, :product_id, :size, :color, :quantity, :price)
+            '''),
+            {
+                'user_id': user_id,
+                'product_id': product_id,
+                'size': size,
+                'color': color,
+                'quantity': quantity,
+                'price': price
+            }
+        )
+
+    return redirect(url_for('product', product_id=product_id))
+
+
+@app.route('/cart')
+def view_cart():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    with engine.begin() as conn:
+        cart_items = conn.execute(
+            text('SELECT * FROM cart_items WHERE user_id = :user_id'),
+            {'user_id': user_id}
+        ).fetchall()
+
+    total_price = sum(item.price * item.quantity for item in cart_items)
+
+    return render_template('cart.html', cart_items=cart_items, total_price=total_price)
+
+
+
+@app.route('/remove_from_cart', methods=['POST'])
+def remove_from_cart():
+    cart_item_id = int(request.form['cart_item_id'])
+
+    with engine.begin() as conn:
+        conn.execute(
+            text('DELETE FROM cart_items WHERE cart_item_id = :cart_item_id'),
+            {'cart_item_id': cart_item_id}
+        )
+
+    return redirect(url_for('view_cart'))
+
+
+@app.route('/checkout')
+def checkout():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    with engine.begin() as conn:
+        cart_items = conn.execute(
+            text('SELECT * FROM cart_items WHERE user_id = :user_id'),
+            {'user_id': user_id}
+        ).fetchall()
+
+    if not cart_items:
+        return redirect(url_for('view_cart'))
+
+    total_price = sum(item.price * item.quantity for item in cart_items)
+
+    return render_template('checkout.html', cart_items=cart_items, total_price=total_price)
+
+
+@app.route('/place_order', methods=['GET', 'POST'])
+def place_order():
+    full_name = request.form['full_name']
+    address = request.form['address']
+    payment_info = request.form['payment_info']
+    user_id = session['user_id']
+    now = datetime.datetime.now()
+
+    with engine.begin() as conn:
+        cart_items = conn.execute(text('''
+            SELECT ci.*, p.product_name, p.product_quantity
+            FROM cart_items ci
+            JOIN products p ON ci.product_id = p.product_id
+            WHERE ci.user_id = :user_id
+        '''), {'user_id': user_id}).fetchall()
+
+        if not cart_items:
+            return redirect(url_for('view_cart'))
+
+        total_price = sum(item.price * item.quantity for item in cart_items)
+
+        # Insert the order
+        conn.execute(text('''
+            INSERT INTO orders (user_id, full_name, address, payment_info, order_date, total_items)
+            VALUES (:user_id, :full_name, :address, :payment_info, :order_date, :total_items)
+        '''), {
+            'user_id': user_id,
+            'full_name': full_name,
+            'address': address,
+            'payment_info': payment_info,
+            'order_date': now,
+            'total_items': len(cart_items)
+        })
+
+        # Update product quantities
+        for item in cart_items:
+            conn.execute(
+                text('''
+                    UPDATE products
+                    SET product_quantity = product_quantity - :qty
+                    WHERE product_id = :pid AND product_quantity >= :qty
+                '''),
+                {'qty': item.quantity, 'pid': item.product_id}
+            )
+
+        # Clear cart
+        conn.execute(
+            text('DELETE FROM cart_items WHERE user_id = :user_id'),
+            {'user_id': user_id}
+        )
+
+    return render_template(
+        'thank_you.html',
+        full_name=full_name,
+        cart_items=cart_items,
+        total_price=total_price,
+        card_number=payment_info,
+        order_date=now.strftime("%B %d, %Y")
+    )
+
+@app.route('/thank_you')
+def thank_you():
+    return render_template('thank_you.html')
+
+@app.route('/orders')
+def view_orders():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    with engine.begin() as conn:
+        # Get all past orders for this user
+        orders = conn.execute(text('''
+            SELECT * FROM orders 
+            WHERE user_id = :user_id
+            ORDER BY order_date DESC
+        '''), {'user_id': user_id}).fetchall()
+
+    return render_template('view_orders.html', orders=orders)
+
 
 # *** END OF CUSTOMER FUNCTIONALITY ***
 

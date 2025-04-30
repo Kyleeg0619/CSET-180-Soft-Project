@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
+   body{
+        background-image: url("{{ url_for('static', filename='images/pastel_background.jpg') }}");
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+}
     .store-page {
         display: flex;
         margin: 30px auto;
@@ -217,6 +223,8 @@
                         <li>Username: {{account.username}}</li>
                         <li>Fullname: {{account.first_name + ' ' + account.last_name}}</li>
                         <li>Email: {{account.email}}</li>
+                        <a href="{{ url_for('view_orders') }}">View Orders</a>
+
                     </ul>
                 </div>
             </div>
@@ -258,7 +266,8 @@
                     <img src="../static/images/strawberry.PNG" alt="">
                 </div>
             </div>
-            <form class="product-block">
+            <!-- <form action=" url_for('product', product_id=product.id) " class="product-block"> --> 
+                <!-- ^^removed the curly brackets to comment jinja operator out -->
                 {% for product in products %}
                 <div class="product-listing">
                     <p id="x-icon">&#10005;</p>
@@ -276,10 +285,12 @@
                         {% endif %}
                     </ul>
                     <input type="hidden" value="{{product.product_id}}">
-                    <input type="submit" value="Add to Cart" class="add-to-cart">
+                    <a href="{{ url_for('product', product_id=product.product_id) }}">
+                    <input type="submit" value="View Product Details" class="add-to-cart"></a>
+                    
                 </div>
                 {% endfor %}
-            </form>
+            <!-- </form> -->
             <div class="pagination_bar">
                 {% if page==1 %}
                 {% else %}
@@ -292,7 +303,6 @@
             </div>
         </section>
     </section>
-
     <script>
         document.getElementById('searchForm').addEventListener('submit', mergeForms);
 
