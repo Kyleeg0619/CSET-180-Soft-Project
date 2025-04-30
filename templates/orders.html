@@ -1,0 +1,77 @@
+<style>
+
+ 
+</style>
+
+{% extends 'base.html' %}
+    {% block content %}
+
+<h2>Pending Orders</h2>
+{% for order in orders_pending %}
+    <form method="POST" action="{{ url_for('orders_pending', order_id=order.order_id) }}">
+        <div class="card">
+            <p>Order ID: {{ order.order_id }}</p>
+            <p>User ID: {{ order.user_id }}</p>
+            <p>Full Name: {{ order.full_name }}</p>
+            <p>Address: {{ order.address }}</p>
+            <p>Payment Info: {{ order.payment_info }}</p>
+            <p>Order Date: {{ order.order_date }}</p>
+            <p>Total Items: {{ order.total_items }}</p>
+            <p>Order Status: {{ order.order_status }}</p>
+            <button type="submit">Confirm Order</button>
+        </div>
+    </form>
+{% endfor %}
+
+<h2>Orders Confirmed</h2>
+{% for order in orders_confirmed %}
+    <form method="POST" action="{{ url_for('orders_confirmed', order_id=order.order_id) }}">
+        <div class="card">
+            <p>Order ID: {{ order.order_id }}</p>
+            <p>User ID: {{ order.user_id }}</p>
+            <p>Full Name: {{ order.full_name }}</p>
+            <p>Address: {{ order.address }}</p>
+            <p>Payment Info: {{ order.payment_info }}</p>
+            <p>Order Date: {{ order.order_date }}</p>
+            <p>Total Items: {{ order.total_items }}</p>
+            <p>Order Status: {{ order.order_status }}</p>
+            <button type="submit">Confirm Order</button>
+        </div>
+    </form>
+{% endfor %}
+
+<h2>Handed Orders</h2>
+{% for order in orders_handed %}
+    <form method="POST" action="{{ url_for('orders_handed', order_id=order.order_id) }}">
+        <div class="card">
+            <p>Order ID: {{ order.order_id }}</p><p>Order ID: {{ order.order_id }}</p>
+            <p>User ID: {{ order.user_id }}</p>
+            <p>Full Name: {{ order.full_name }}</p>
+            <p>Address: {{ order.address }}</p>
+            <p>Payment Info: {{ order.payment_info }}</p>
+            <p>Order Date: {{ order.order_date }}</p>
+            <p>Total Items: {{ order.total_items }}</p>
+            <p>Order Status: {{ order.order_status }}</p>
+            <button type="submit">Handed to delivery</button>
+        </div>
+    </form>
+{% endfor %}
+
+<h2>Shipped Orders</h2>
+{% for order in orders_shipped %}
+    <form method="POST" action="{{ url_for('orders_shipped', order_id=order.order_id) }}">
+        <div class="card">
+            <p>Order ID: {{ order.order_id }}</p><p>Order ID: {{ order.order_id }}</p>
+            <p>User ID: {{ order.user_id }}</p>
+            <p>Full Name: {{ order.full_name }}</p>
+            <p>Address: {{ order.address }}</p>
+            <p>Payment Info: {{ order.payment_info }}</p>
+            <p>Order Date: {{ order.order_date }}</p>
+            <p>Total Items: {{ order.total_items }}</p>
+            <p>Order Status: {{ order.order_status }}</p>
+            <button type="submit">Handed to delivery</button>
+        </div>
+    </form>
+{% endfor %}
+
+{% endblock %}

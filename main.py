@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
 
 # *** Connect Database ***
-conn_str = "mysql+pymysql://root:Ky31ik3$m0s$;@localhost/egarden"
+conn_str = "mysql+pymysql://root:CSET155@localhost/egarden"
 engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
@@ -427,6 +427,80 @@ def handle_product_action():
     
     if action == 'edit':
         return redirect(url_for('edit_product', product_id=product_id))
+
+# vendor order process
+@app.route('/vendor/orders', methods=["GET", "POST"])
+def orders():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    with engine.begin() as conn:
+        orders_pending = conn.execute(text('SELECT * FROM orders WHERE order_status = "pending"')).fetchall()
+        orders_confirmed = conn.execute(text('SELECT * FROM orders WHERE order_status = "confirmed"')).fetchall()
+        orders_handed = conn.execute(text('SELECT * FROM orders WHERE order_status = "handed"')).fetchall()
+        orders_shipped = conn.execute(text('SELECT * FROM orders WHERE order_status = "shipped"')).fetchall()
+
+    return render_template('orders.html',  orders_pending=orders_pending,
+        orders_confirmed=orders_confirmed,
+        orders_handed=orders_handed,
+        orders_shipped=orders_shipped)
+
+# pend order function
+@app.route('/orders_pending/<int:order_id>', methods=['POST'])
+def orders_pending(order_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    with engine.begin() as conn:
+        conn.execute(
+            text('UPDATE orders SET order_status = "confirmed" WHERE order_id = :order_id'),
+            {'order_id': order_id}
+        )
+    
+    return redirect(url_for('orders'))
+
+# confirm order function
+@app.route('/orders_confirmed/<int:order_id>', methods=['POST'])
+def orders_confirmed(order_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    with engine.begin() as conn:
+        conn.execute(
+            text('UPDATE orders SET order_status = "confirmed" WHERE order_id = :order_id'),
+            {'order_id': order_id}
+        )
+    
+    return redirect(url_for('orders'))
+
+# handed order function
+@app.route('/orders_handed/<int:order_id>', methods=['POST'])
+def orders_handed(order_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    with engine.begin() as conn:
+        conn.execute(
+            text('UPDATE orders SET order_status = "handed" WHERE order_id = :order_id'),
+            {'order_id': order_id}
+        )
+    
+    return redirect(url_for('orders'))
+    
+# shipped order function
+@app.route('/orders_shipped/<int:order_id>', methods=['POST'])
+def orders_shipped(order_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    with engine.begin() as conn:
+        conn.execute(
+            text('UPDATE orders SET order_status = "shipped" WHERE order_id = :order_id'),
+            {'order_id': order_id}
+        )
+    
+    return redirect(url_for('orders'))
+
 
 # *** CUSTOMER FUNCTIONALITY ***
 @app.route('/customer')
