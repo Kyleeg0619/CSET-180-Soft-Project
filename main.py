@@ -75,6 +75,8 @@ def login():
         email = request.form['email']
 
         if username == 'admin' and password == 'admin':
+            session['loggedin'] = True
+            session['username'] = 'admin'
             return redirect(url_for('admin'))
         else:
             with engine.begin() as conn:
@@ -114,10 +116,146 @@ def logout():
 # *** ADMIN FUNCTIONALITY ***
 @app.route('/admin')
 def admin():
-        return render_template('admin.html')
-# *** END OF ADMIN FUNCTIONALITY ***
-  
-# *** VENDOR FUNCTIONALITY ***
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    with engine.begin() as conn:
+        reviews = conn.execute(text('SELECT * FROM reviews')).fetchall()
+        products = conn.execute(text('SELECT * FROM products')).fetchall()
+
+    return render_template('admin.html', products=products, reviews=reviews)
+
+@app.route('/admin/products/admin_add_product', methods=["GET", "POST"])
+def admin_add_product():
+    with engine.begin() as conn:
+        user_type = 'vendor'
+        vendors = conn.execute(text('SELECT username FROM users WHERE user_type = :user_type'),
+                       {'user_type': user_type}).fetchall()
+        vendors = [vendor[0] for vendor in vendors]
+
+    if request.method == "POST":
+        vendor_username = request.form.get('vendor_username', '').strip()
+        if not vendor_username:
+            flash("Please select a vendor.")
+            return redirect(url_for('admin_add_product'))
+
+        product_name = request.form['product_name']
+        product_desc = request.form['product_desc']
+        product_quantity= request.form['product_quantity']
+        original_price_raw = request.form['original_price'].strip()
+        discount_price_raw = request.form['discount_price'].strip()
+        discount_date_end_raw = request.form['discount_date_end'].strip()
+        product_warranty_raw = request.form['product_warranty'].strip()
+
+        discount_date_end = discount_date_end_raw if discount_date_end_raw else None
+        product_warranty = product_warranty_raw if product_warranty_raw else None
+        original_price = float(original_price_raw) if original_price_raw else None
+        discount_price = float(discount_price_raw) if discount_price_raw else None
+
+        colors = request.form.getlist('colors')
+        sizes = request.form.getlist('sizes')
+        colors_str = ','.join(colors)
+        sizes_str = ','.join(sizes)
+
+        with engine.begin() as conn:
+            conn.execute(text('INSERT INTO products (product_name, product_desc, product_color, product_sizes, product_quantity, original_price, discount_price, discount_date_end, product_warranty, vendor_username) VALUES (:product_name, :product_desc, :product_color, :product_sizes, :product_quantity, :original_price, :discount_price, :discount_date_end, :product_warranty, :vendor_username)'), {
+                'product_name': product_name,
+                'product_desc': product_desc,
+                'product_color': colors_str,
+                'product_sizes': sizes_str,
+                'product_quantity':product_quantity,
+                'original_price': original_price,
+                'discount_price': discount_price,
+                'discount_date_end': discount_date_end, 'product_warranty':product_warranty, 'vendor_username':vendor_username
+            })
+
+        msg = 'You have successfully added a product.'
+        return redirect(url_for('admin'))
+
+    return render_template('admin_add_product.html', vendors=vendors)
+
+@app.route('/admin/products/admin_edit_product/<int:product_id>', methods=["GET", "POST"])
+def admin_edit_product(product_id):
+    with engine.begin() as conn:
+        product = conn.execute(
+            text('SELECT * FROM products WHERE product_id = :product_id'),
+            {'product_id': product_id}
+        ).fetchone()
+
+        if not product:
+            return 'Product not found.', 404
+
+    return render_template(
+        'admin_edit_product.html',
+        product=product
+    )
+
+@app.route('/admin_edit_product_submit/<int:product_id>', methods=['POST'])
+def admin_edit_product_submit(product_id):
+    if request.method == "POST":
+        product_name = request.form['product_name']
+        product_desc = request.form['product_desc']
+        product_quantity = request.form['product_quantity']
+        original_price_raw = request.form['original_price'].strip()
+        discount_price_raw = request.form['discount_price'].strip()
+        discount_date_end_raw = request.form['discount_date_end'].strip()
+        product_warranty_raw = request.form['product_warranty'].strip()
+        colors = request.form.getlist('colors')
+        sizes = request.form.getlist('sizes')
+        colors_str = ','.join(colors)
+        sizes_str = ','.join(sizes)
+
+        # Fix to handle 'None' string and empty fields for prices
+        original_price = float(original_price_raw) if original_price_raw and original_price_raw != 'None' else None
+        discount_price = float(discount_price_raw) if discount_price_raw and discount_price_raw != 'None' else None
+        discount_date_end = discount_date_end_raw if discount_date_end_raw else None
+        product_warranty = product_warranty_raw if product_warranty_raw else None
+
+        with engine.begin() as conn:
+            conn.execute(text('''
+                UPDATE products 
+                SET 
+                    product_name = :product_name, 
+                    product_desc = :product_desc, 
+                    product_color = :product_color, 
+                    product_sizes = :product_sizes, 
+                    product_quantity = :product_quantity, 
+                    original_price = :original_price, 
+                    discount_price = :discount_price, 
+                    discount_date_end = :discount_date_end, 
+                    product_warranty = :product_warranty 
+                WHERE product_id = :product_id AND vendor_username = :vendor_username
+            '''),
+            {
+                'product_name': product_name,
+                'product_desc': product_desc,
+                'product_color': colors_str,
+                'product_sizes': sizes_str,
+                'product_quantity': product_quantity,
+                'original_price': original_price,
+                'discount_price': discount_price,
+                'discount_date_end': discount_date_end,
+                'product_warranty': product_warranty,
+                'vendor_username': session['username'],
+                'product_id': product_id
+            })
+            return redirect(url_for('admin'))
+
+@app.route('/admin_handle_product_action', methods=['POST'])
+def admin_handle_product_action():
+    product_id = request.form['product_id']
+    action = request.form['action']
+
+    if action == 'delete': 
+        with engine.begin() as conn:
+            conn.execute(text('DELETE FROM products WHERE product_id = :product_id'), {
+                'product_id': product_id
+            })
+        return redirect(url_for('admin'))
+    
+    if action == 'edit':
+        return redirect(url_for('admin_edit_product', product_id=product_id))
+    
+# *** Vendor Page ***
 @app.route('/vendor')
 def vendor():
     username = session['username']
@@ -129,10 +267,6 @@ def vendor():
         products = conn.execute(text('SELECT * FROM products WHERE vendor_username = :username'),{'username':username}).fetchall()
 
     return render_template('vendor.html', reviews=reviews, products=products, username=username)
-
-@app.route('/vendor/products/modify_product')
-def modify_products():
-    return render_template('modify_products.html')
 
 @app.route('/vendor/products/add_product', methods=["GET",'POST'])
 def add_product():
@@ -240,7 +374,7 @@ def edit_product_submit(product_id):
                 'product_id': product_id
             })
             return redirect(url_for('vendor'))
-
+        
 @app.route('/vendor/chat', methods=['GET', 'POST'])
 def chat():
     messages = []
@@ -295,7 +429,6 @@ def handle_product_action():
     
     if action == 'edit':
         return redirect(url_for('edit_product', product_id=product_id))
-# *** END OF VENDOR FUNCTIONALITY ***
 
 # *** CUSTOMER FUNCTIONALITY ***
 @app.route('/customer')
@@ -315,19 +448,47 @@ def customer(page=1):
 
     return render_template('customer.html', account=account, products=products, page=page, per_page=per_page)
 
-@app.route('/search', methods=['POST'])
+@app.route('/search', methods=['GET', 'POST'])
 def search():
-    search_query = request.form.get('query','').strip()
-    print(search_query)
+    if request.method == 'POST':
+        data = request.form
+    else:
+        data = request.args
+
+    search_query = data.get('query', '').strip()
+    color_filter = data.get('color-filter', '').strip()
+    size_filter = data.get('size-filter', '').strip()
+    stock_filter = data.get('stock-filter', '').strip()
     
     with engine.begin() as conn:
         username = session['username']
         account = conn.execute(text('SELECT * FROM users WHERE username = :username'), {'username':username}).fetchone()
 
-        if search_query=='':
+        if not search_query and not color_filter and not size_filter and not stock_filter:
             return redirect(url_for('customer'))
 
-        products = conn.execute(text('SELECT * FROM products WHERE product_name LIKE :search_query OR product_desc LIKE :search_query OR vendor_username LIKE :search_query'),{'search_query':f'%{search_query}%'}).fetchall()
+        sql = 'SELECT * FROM products WHERE 1=1'
+        params = {}
+
+        if search_query:
+            sql += ' AND (product_name LIKE :search_query OR product_desc LIKE :search_query OR vendor_username LIKE :search_query)'
+            params['search_query'] = f'%{search_query}%'
+
+        if color_filter:
+            sql += ' AND product_color = :color_filter'
+            params['color_filter'] = color_filter
+
+        if size_filter:
+            sql += ' AND product_sizes = :size_filter'
+            params['size_filter'] = size_filter
+
+        if stock_filter:
+            if stock_filter == 'available':
+                sql += ' AND product_quantity > 0'
+            else:
+                sql += ' AND product_quantity = 0'
+
+        products = conn.execute(text(sql), params).fetchall()
 
         return render_template('customer.html', account=account, page=1, search_query=search_query, products=products)
 

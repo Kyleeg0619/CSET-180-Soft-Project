@@ -30,7 +30,7 @@
     .user-info {
         display: block;
         background: var(--pastel-purple--);
-        border-radius: 30px;
+        border-radius: 10px;
         font-size: 15px;
         height: max-content;
     }
@@ -39,7 +39,7 @@
         background: url(../static/images/gradient-background.jpg);
         background-position: center;
         background-size: cover;
-        border-radius: 30px 30px 0 0;
+        border-radius: 10px 10px 0 0;
         align-content: center;
         padding: 10px;
     }
@@ -62,16 +62,10 @@
         list-style: none;
     }
 
-    hr {
-        display: block;
-        border: 2px solid var(--Violet--);
-    }
-
-    .product {
+    .product-listing {
         display: inline-block;
         background: var(--pastel-purple--);
-        border: 4px solid var(--Violet--);
-        border-radius: 20px;
+        border-radius: 10px;
         width: 300px;
         color: var(--Violet--);
         margin: 5px;
@@ -81,13 +75,13 @@
         scrollbar-width: none;
     }
 
-    .product img {
+    .product-listing img {
         display: block;
         width: 80%;
         margin: 0 auto;
     }
 
-    .product ul {
+    .product-listing ul {
         margin: 10px;
     }
 
@@ -188,8 +182,35 @@
         padding: 5px;
     }
 
+    .filter {
+        display: block;
+        background: var(--pastel-purple--);
+        margin: 20px 0;
+        border-radius: 10px;
+        padding: 10px 20px;
+    }
+
+    .filter button {
+        z-index: -1;
+        background: var(--Violet--);
+        color: var(--pastel-purple--);
+        border: none;
+        border-radius: 30px;
+        padding: 10px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .filter select {
+        display: block;
+        width: max-content;
+        margin: 5px;
+        border-radius: 30px;
+        padding: 10px;
+        border: 2px solid var(--Violet--);
+    }
+
 </style>
-<body>
     <section class="store-page">
         <section id="side-bar">
             <div class="user-info">
@@ -207,9 +228,10 @@
                     </ul>
                 </div>
             </div>
-            <form action="">
+            <form action="/search" class="filter" id="filterForm">
                 <h1>Filters</h1>
                 <select name="color-filter" id="color-filter">
+                    <option value="" selected >Color</option>
                     <option value="red">Red</option>
                     <option value="yellow">Yellow</option>
                     <option value="green">Green</option>
@@ -217,11 +239,13 @@
                     <option value="purple">Purple</option>
                 </select>
                 <select name="size-filter" id="size-filter">
+                    <option value="" selected>Size</option>
                     <option value="small">Small</option>
                     <option value="medium">Medium</option>
                     <option value="large">Large</option>
                 </select>
                 <select name="stock-filter" id="stock-filter">
+                    <option value="" selected>Availability</option>
                     <option value="available">Available</option>
                     <option value="unavailable">Unavailable</option>
                 </select>
@@ -234,7 +258,7 @@
                 <div class="search-bar">
                     <img src="../static/images/strawberry.PNG" alt="">
                     <search>
-                        <form action="/search" method="post">
+                        <form action="/search" method="post" id="searchForm">
                             <input name="query" placeholder="Search Products...">
                             <button type="submit">Search</button>
                         </form>
@@ -245,7 +269,7 @@
             <!-- <form action=" url_for('product', product_id=product.id) " class="product-block"> --> 
                 <!-- ^^removed the curly brackets to comment jinja operator out -->
                 {% for product in products %}
-                <div class="product">
+                <div class="product-listing">
                     <p id="x-icon">&#10005;</p>
                     <hr>
                     <img src="../static/images/sprout.PNG" alt="">
@@ -279,5 +303,21 @@
             </div>
         </section>
     </section>
-</body>
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', mergeForms);
+
+        function mergeForms(e) {
+          e.preventDefault();
+          const searchForm = document.getElementById('searchForm');
+          const filterForm = document.getElementById('filterForm');
+        
+          const params = new URLSearchParams(new FormData(searchForm));
+          const filterParams = new FormData(filterForm);
+          for (const [key, value] of filterParams) {
+            params.set(key, value); // override if same key
+          }
+        
+          window.location.href = `/search?${params.toString()}`;
+        }
+        </script>
 {% endblock %}
