@@ -469,7 +469,7 @@ def orders_confirmed(order_id):
     
     with engine.begin() as conn:
         conn.execute(
-            text('UPDATE orders SET order_status = "confirmed" WHERE order_id = :order_id'),
+            text('UPDATE orders SET order_status = "handed" WHERE order_id = :order_id'),
             {'order_id': order_id}
         )
     
@@ -483,7 +483,7 @@ def orders_handed(order_id):
     
     with engine.begin() as conn:
         conn.execute(
-            text('UPDATE orders SET order_status = "handed" WHERE order_id = :order_id'),
+            text('UPDATE orders SET order_status = "shipped" WHERE order_id = :order_id'),
             {'order_id': order_id}
         )
     
@@ -497,7 +497,7 @@ def orders_shipped(order_id):
     
     with engine.begin() as conn:
         conn.execute(
-            text('UPDATE orders SET order_status = "shipped" WHERE order_id = :order_id'),
+            text('UPDATE orders SET order_status = "completed" WHERE order_id = :order_id'),
             {'order_id': order_id}
         )
     
