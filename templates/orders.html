@@ -35,7 +35,7 @@
             <p>Order Date: {{ order.order_date }}</p>
             <p>Total Items: {{ order.total_items }}</p>
             <p>Order Status: {{ order.order_status }}</p>
-            <button type="submit">Confirm Order</button>
+            <button type="submit">Hand Order to delivery </button>
         </div>
     </form>
 {% endfor %}
@@ -52,7 +52,7 @@
             <p>Order Date: {{ order.order_date }}</p>
             <p>Total Items: {{ order.total_items }}</p>
             <p>Order Status: {{ order.order_status }}</p>
-            <button type="submit">Handed to delivery</button>
+            <button type="submit">Ship Order</button>
         </div>
     </form>
 {% endfor %}
@@ -68,8 +68,8 @@
             <p>Payment Info: {{ order.payment_info }}</p>
             <p>Order Date: {{ order.order_date }}</p>
             <p>Total Items: {{ order.total_items }}</p>
-            <p>Order Status: {{ order.order_status }}</p>
-            <button type="submit">Handed to delivery</button>
+            <p><strong>Order Status: {{ order.order_status }}</strong></p>
+            <!-- <button type="submit">Handed to delivery</button> -->
         </div>
     </form>
 {% endfor %}
