@@ -154,6 +154,15 @@ body, button, input {
     padding-left: 0;
   }
   
+    .msg {
+      text-align: center;
+      display: block;
+    }
+ 
+  .cart{
+    width:30px;
+    height: 30px;
+}
   .footer li {
     line-height: 2em;
   }

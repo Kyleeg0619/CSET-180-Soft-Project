@@ -1,113 +1,122 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
-    .a_add_product {
-      display: block;
-      color: var(--lt-Violet--);
-      padding: 15px;
-      border-radius: 50px;
-      border: solid 2px var(--lt-Violet--);
-      text-decoration: none;
-      font-weight: bold;
-      margin: 10px;
-      min-width: 600px;
-      max-width: 100%;
-      background: var(--Violet--);
-      align-self: center;
-      justify-self: center;
-    }
+  .add_product {
+    display: block;
+    color: var(--lt-Violet--);
+    padding: 15px;
+    border-radius: 50px;
+    border: solid 2px var(--lt-Violet--);
+    text-decoration: none;
+    font-weight: bold;
+    margin: 10px;
+    min-width: 600px;
+    max-width: 100%;
+    background: var(--Violet--);
+    align-self: center;
+    justify-self: center;
+  }
 
-    .a_add_product img {
-      display: block;
-      width: 50%;
-      height: max-content;
-      align-self: center;
-    }
+  .add_product img {
+    display: block;
+    width: 50%;
+    height: max-content;
+    align-self: center;
+  }
 
-    .product-form {
-      display: block;
-      margin: 10px;
-      padding: 10px;
-      border-radius: 20px;
-      font-size: 1rem;
-      text-align: center;
-      align-content: center;
-      width: 50%;
-    }
+  .product-form {
+    display: block;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 20px;
+    font-size: 1rem;
+    text-align: center;
+    align-content: center;
+    width: 50%;
+  }
 
-    input {
-      border-radius: 20px;
-      padding: 10px;
-      border: 3px solid var(--lt-Violet--);
-    }
+  input, select, option {
+    border-radius: 20px;
+    padding: 10px;
+    border: 3px solid var(--lt-Violet--);
+  }
 
-    label {
-      color: var(--Celadon--);
-    }
+  label {
+    color: var(--Celadon--);
+  }
 
-    label, input {
-      margin: 10px;
-    }
+  label, input {
+    margin: 10px;
+  }
 
-    form {
-      display: flex;
-    }
+  form {
+    display: flex;
+  }
 </style>
-<div class="a_add_product">
-    <h1>Add A Product</h1>
-    <form action="{{ url_for('admin_add_product') }}" method="POST"> 
-<img src="{{ url_for('static', filename='images/sprout.png') }}" alt="sprout">
-        <div class="product-form">
-            <label for="product_name">Product Name: </label>
-            <input type="text" id="product_name" name="product_name" required>
-            <br>
-            <label for="product_desc">Product Description: </label>
-            <input type="text" id="product_desc" name="product_desc" required>
-            <br> 
-            <label for="product_color">Product Color: </label>
-            <br>
-            <input type="checkbox" name="colors" id="" value="Red"><label for="colors">Red</label>
-            <br>
+<div class="add_product">
+  <h1>Add A Product</h1>
+  <form action="{{ url_for('admin_add_product') }}" method="POST">
+    <img src="{{ url_for('static', filename='images/sprout.png') }}" alt="sprout">
+      <div class="product-form">
+        <label for="vendor_username">Select Vendor:</label>
+        <Select name="vendor_username" required>
+          <option value="" disabled selected></option>
+          {% for vendor in vendors %}
+          <option value="{{vendor}}">{{vendor}}</option>
+          {% endfor %}
+        </Select>
+        <br>
+          <label for="product_name">Product Name: </label>
+          <input type="text" id="product_name" name="product_name" required>
+          <br>
+          <label for="product_desc">Product Description: </label>
+          <input type="text" id="product_desc" name="product_desc" required>
+          <br> 
+          <label for="product_color">Product Color: </label>
+          <br>
+          <input type="checkbox" name="colors" id="" value="Red"><label for="colors">Red</label>
+          <br>
 
-            <input type="checkbox" name="colors" id="" value="Yellow"><label for="colors">Yellow</label>
-            <br>
+          <input type="checkbox" name="colors" id="" value="Yellow"><label for="colors">Yellow</label>
+          <br>
 
-            <input type="checkbox" name="colors" id="" value="Green"><label for="colors">Green</label>
-            <br>
+          <input type="checkbox" name="colors" id="" value="Green"><label for="colors">Green</label>
+          <br>
 
-            <input type="checkbox" name="colors" id="" value="Blue"><label for="colors">Blue</label>
-            <br>
+          <input type="checkbox" name="colors" id="" value="Blue"><label for="colors">Blue</label>
+          <br>
 
-            <input type="checkbox" name="colors" id="" value="Purple"><label for="colors">Purple</label>
+          <input type="checkbox" name="colors" id="" value="Purple"><label for="colors">Purple</label>
 
-            <br>
-            <label for="product_sizes">Product Sizes: </label>
-            <br>
-            <input type="checkbox" name="sizes" id="" value="Small"><label for="sizes">Small</label>
-            <br>
+          <br>
+          <label for="product_sizes">Product Sizes: </label>
+          <br>
+          <input type="checkbox" name="sizes" id="" value="Small"><label for="sizes">Small</label>
+          <br>
 
-            <input type="checkbox" name="sizes" id="" value="Medium"><label for="sizes">Medium</label>
-            <br>
+          <input type="checkbox" name="sizes" id="" value="Medium"><label for="sizes">Medium</label>
+          <br>
 
-            <input type="checkbox" name="sizes" id="" value="Large"><label for="sizes">Large</label>
-            <br>
-            <label for="product_quantity">Product Quantity: </label>
-            <input type="number" id="product_quantity" name="product_quantity" required>
-            <br>
-            <label for="original_price">Product Price: </label>
-            $<input type="text" id="original_price" name="original_price" required>
-            <BR>
-            <label for="discount_price">Discount Price: </label>
-            $<input type="text" id="discount_price" name="discount_price">
-            <BR>
-            <label for="discount_date_end">End of Discount Period: </label>
-            <input type="date" id="discount_date_end" name="discount_date_end" placeholder="if discount period...">
-            <br>
-            <label for="product_warranty">Product Warranty: </label>
-            <input type="date" id="product_warranty" name="product_warranty" placeholder="if warranty...">
-            <button type="submit" id="submit" class="sign-up">Add Product</button>
-        </div>
-    </form>
+          <input type="checkbox" name="sizes" id="" value="Large"><label for="sizes">Large</label>
+          <br>
+          <label for="product_quantity">Product Quantity: </label>
+          <input type="number" id="product_quantity" name="product_quantity" required>
+          <br>
+          <label for="original_price">Product Price: </label>
+          $<input type="text" id="original_price" name="original_price" required>
+          <BR>
+          <label for="discount_price">Discount Price: </label>
+          $<input type="text" id="discount_price" name="discount_price">
+          <BR>
+          <label for="discount_date_end">End of Discount Period: </label>
+          <input type="date" id="discount_date_end" name="discount_date_end" placeholder="if discount period...">
+          <br>
+          <label for="product_warranty">Product Warranty: </label>
+          <input type="date" id="product_warranty" name="product_warranty" placeholder="if warranty...">
+          <button type="submit" id="submit" class="sign-up">Add Product</button>
+      </div>
+
+  </form>
 </div>
 
 
