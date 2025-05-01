@@ -96,11 +96,12 @@
                     </div>
                     <div class="products">
                         {% for product in products %}
-                        <form method="POST" action="{{ url_for('handle_product_action') }}" class="product_form">
+                        <form method="POST" action="{{ url_for('admin_handle_product_action') }}" class="product_form">
                             <p id="x-icon" style="justify-self: self-start;">&#10005;</p>
                     <hr>
                             <ul class="product">
                                 <img src="{{ url_for('static', filename='images/tulip.png') }}" alt="">
+                                <li>Vendor: {{ product.vendor_username }}</li>
                                 <li>Product ID: {{ product['product_id']}}</li>
                                 <li>Product Name: {{ product['product_name']}}</li>
                                 <li>Description: {{ product['product_desc']}}</li>

@@ -10,13 +10,29 @@
   <body> 
     <header>
       <div class="topBar">
-          <img src="{{url_for('static',filename = 'images/logo.png')}}" alt="Logo" class="logo">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
           <h1 class="logo-title">eGarden</h1>
+          
           <ul class="barItem">
-            <li><a href="/">home</a></li>
+              <li><a href="/">home</a></li>
+    
+              {% if session.get('loggedin') %}
+                  <li><a href="{{ url_for('logout') }}" class="logout-link">logout</a></li>
+              {% endif %}
+        
+              
+              {% if session.get('loggedin') and session.get('user_type') == 'Customer' %}
+                  <li>
+                      <a href="{{ url_for('view_cart') }}" class="cart-link">
+                         <img g src="https://gallery.yopriceville.com/var/albums/Free-Clipart-Pictures/Sale-Stickers-PNG/Shopping_Cart_Icon_PNG_Clipart.png?m=1629814077" class="cart">
+                      </a>
+                  </li>
+              {% endif %}
           </ul>     
       </div>
     </header>
+    
+  
 
     {% block content %}
     {% endblock %}

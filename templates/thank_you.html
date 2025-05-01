@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+
+body{
+    background-color: #d7e7c3;
+}
+
+.receipt-container {
+    background-image: url("{{ url_for('static', filename='images/pastel_background.jpg') }}");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    padding: 30px;
+    margin: 40px auto;
+    max-width: 800px;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+.receipt-title {
+    text-align: center;
+    font-size: 32px;
+    color: #8c5383;
+    margin-bottom: 20px;
+}
+.receipt-info {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+.receipt-info strong {
+    color: #8c5383;
+}
+.items-list {
+    margin-top: 20px;
+}
+.item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+.item-row img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+}
+.item-details {
+    flex-grow: 1;
+    padding: 0 20px;
+}
+.item-name {
+    font-weight: bold;
+}
+.total-section {
+    text-align: right;
+    margin-top: 20px;
+    font-size: 18px;
+    color: #8c5383;
+}
+
+.checkout-button {
+    margin-top: 30px;
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background: var(--Violet--, #8c5383);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.checkout-button:hover {
+    background: #9d6094
+}
+</style>
+<body>
+<div class="receipt-container">
+    <h1 class="receipt-title">Thank you, {{ full_name|title }}!</h1>
+
+    <div class="receipt-info">
+        <p><strong>Date:</strong> {{ order_date }}</p>
+        <p><strong>Card Used:</strong> **** **** **** {{ card_number[-4:] }}</p>
+    </div>
+
+    <div class="items-list">
+        {% for item in cart_items %}
+        <div class="item-row">
+            <img src="{{ url_for('static', filename='images/sprout.PNG') }}" alt="Product Image">
+            <div class="item-details">
+                <div class="item-name">{{ item.product_name }}</div>
+                <div>Qty: {{ item.quantity }}</div>
+            </div>
+            <div class="item-price">${{ '%.2f' % (item.price * item.quantity) }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="total-section">
+        <p><strong>Total:</strong> ${{ '%.2f' % total_price }}</p>
+        <p><strong>Order Status</strong> ~</p>
+    </div>
+
+    <a href="{{ url_for('customer') }}" class="checkout-button" style="margin-top:30px;">Continue Shopping</a>
+</div>
+</body>
+{% endblock %}
