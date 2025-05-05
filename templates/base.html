@@ -14,7 +14,16 @@
           <h1 class="logo-title">eGarden</h1>
           
           <ul class="barItem">
-              <li><a href="/">home</a></li>
+            {% if session.get('loggedin') and session.get('user_type') == 'Customer' %}
+            <li><a href="/customer">home</a></li>
+            {% elif session.get('loggedin') and session.get('user_type') == 'Vendor' %}
+            <li><a href="/vendor">home</a></li>
+            {% elif session.get('loggedin') and session.get('user_type') == 'admin' %}
+            <li><a href="/admin">home</a></li>
+            {% else %}
+            <li><a href="/">home</a></li>
+            {% endif %}
+            
     
               {% if session.get('loggedin') %}
                   <li><a href="{{ url_for('logout') }}" class="logout-link">logout</a></li>

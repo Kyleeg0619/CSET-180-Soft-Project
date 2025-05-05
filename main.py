@@ -77,6 +77,7 @@ def login():
         if username == 'admin' and password == 'admin':
             session['loggedin'] = True
             session['username'] = 'admin'
+            session['user_type'] = 'admin'
             return redirect(url_for('admin'))
         else:
             with engine.begin() as conn:
@@ -750,6 +751,11 @@ def view_orders():
 
     return render_template('view_orders.html', orders=orders)
 
+@app.route('/review/<int:product_id>', methods=['GET','POST'])
+def review(product_id):
+    with engine.begin() as conn:
+        products = conn.execute(text('SELECT * FROM products WHERE product_id =:product_id'),{'product_id':product_id}).fetchone()
+    return render_template('product.html', product=products)
 
 # *** END OF CUSTOMER FUNCTIONALITY ***
 
