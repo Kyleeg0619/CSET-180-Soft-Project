@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
 
 # *** Connect Database ***
-conn_str = "mysql+pymysql://root:CSET115@localhost/egarden"
+conn_str = "mysql+pymysql://root:Ky31ik3$m0s$;@localhost/egarden"
 engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
@@ -77,6 +77,7 @@ def login():
         if username == 'admin' and password == 'admin':
             session['loggedin'] = True
             session['username'] = 'admin'
+            session['user_type'] = 'admin'
             return redirect(url_for('admin'))
         else:
             with engine.begin() as conn:
