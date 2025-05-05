@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
 
 # *** Connect Database ***
-conn_str = "mysql+pymysql://root:Ky31ik3$m0s$;@localhost/egarden"
+conn_str = "mysql+pymysql://root:password@localhost/egarden" #Ky31ik3$m0s$;
 engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
@@ -749,6 +749,52 @@ def view_orders():
         '''), {'user_id': user_id}).fetchall()
 
     return render_template('view_orders.html', orders=orders)
+
+
+from sqlalchemy import text
+
+@app.route('/review/<int:order_id>', methods=['GET', 'POST'])
+def review(order_id):
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        vendor_id = request.form['vendor_id']
+        rating = int(request.form['rating'])
+        review_text = request.form['review_text']
+        review_date = datetime.datetime.now()
+
+        sql = """
+            INSERT INTO reviews (user_id, vendor_id, rating, review_text, review_date)
+            VALUES (:user_id, :vendor_id, :rating, :review_text, :review_date)
+        """
+
+        with engine.connect() as conn:
+            conn.execute(text(sql), {
+                'user_id': user_id,
+                'vendor_id': vendor_id,
+                'rating': rating,
+                'review_text': review_text,
+                'review_date': review_date
+            })
+            conn.commit() 
+
+        return redirect(url_for('view_orders'))
+
+    return render_template('review.html', order_id=order_id)
+
+@app.route('/view_reviews/')
+def view_reviews():
+    user_id = session['user_id']
+    
+    sql  = """
+        SELECT rating, review_text, review_date
+        FROM reviews 
+        WHERE user_id = :user_id
+        ORDER BY review_date DESC
+    """
+    with engine.connect() as conn:
+        result = conn.execute(text(sql), {'user_id': user_id})
+        reviews = result.fetchall()
+    return render_template('view_reviews.html', reviews=reviews)
 
 # *** END OF CUSTOMER FUNCTIONALITY ***
 

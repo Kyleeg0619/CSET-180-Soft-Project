@@ -1,0 +1,83 @@
+<style>
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;    
+        flex-direction: column;
+        padding-top: 100px;
+
+    }
+    .review-form {
+       display: block;
+       margin: 10ox;
+       padding: 10px;
+       border-radius: 20px;
+       font-size: 1rem;
+       text-align: center;
+       width: 50%;
+       align-content: center;
+       background-color: var(--Violet--);
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)
+    }
+
+    input, select, textarea {
+        border-radius: 20px;
+        padding: 10px;
+        border: 3px solid var(--lt-Violet--);
+        background: var(--pastel-purple--);
+        width: 90%;
+        color: var(--lt-Violet--);
+        
+    }
+    label {
+        color: var(--Celadon--);
+    }
+    label, input, select {
+        margin:10px;
+    }
+    button {
+        display: inline-block;
+        color: var(--lt-Violet--);
+        padding: 15px;
+        border: solid 2px var(--lt-Violet--);
+        border-radius: 20px;
+        background: var(--pastel-purple--);
+        text-decoration: none;
+        margin: 10px;
+        min-width: 200px;
+
+    }
+    button:hover {
+        background: var(--lt-Violet--);
+        color: var(--pastel-purple--);
+    }
+
+</style>
+
+
+{% extends 'base.html' %}
+{% block content %}
+
+<body>
+    <div class="container">
+        <form method="POST" class="review-form">
+            <input type="hidden" name="vendor_id" value="1">  <!-- Replace 1 with actual vendor_id -->
+        
+            <label for="rating">Rate your experience!</label>
+            <select name="rating" id="rating" required>
+                <option value="">Select</option>
+                {% for i in range(1, 6) %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select><br><br>
+        
+            <label for="review_text">Write us feedback to imrpove!</label><br>
+            <textarea name="review_text" id="review_text" rows="5" required></textarea><br><br>
+        
+            <button type="submit">Submit Review</button>
+        </form>
+    </div>    
+</body>
+
+
+{% endblock %}
