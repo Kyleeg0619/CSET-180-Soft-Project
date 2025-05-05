@@ -266,8 +266,6 @@
                     <img src="../static/images/strawberry.PNG" alt="">
                 </div>
             </div>
-            <!-- <form action=" url_for('product', product_id=product.id) " class="product-block"> --> 
-                <!-- ^^removed the curly brackets to comment jinja operator out -->
                 {% for product in products %}
                 <div class="product-listing">
                     <p id="x-icon">&#10005;</p>
@@ -290,7 +288,6 @@
                     
                 </div>
                 {% endfor %}
-            <!-- </form> -->
             <div class="pagination_bar">
                 {% if page==1 %}
                 {% else %}
