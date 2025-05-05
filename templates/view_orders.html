@@ -50,8 +50,6 @@
             <p><strong>Order Status:</strong> </p>
             <p><strong>Payment Info:</strong> {{ order.payment_info }}</p>
             <p><strong>Total Items:</strong> {{ order.total_items }}</p>
-            <a href="{{ url_for('review', product_id=product.product_id) }}">
-                <input type="submit" value="View Product Details" class="add-to-cart"></a>
         </div>
         {% endfor %}
     {% else %}

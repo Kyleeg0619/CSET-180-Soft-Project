@@ -3,7 +3,6 @@ from flask import Flask, render_template, request, redirect, url_for
 from sqlalchemy import create_engine, text
 from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
-import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
@@ -750,12 +749,6 @@ def view_orders():
         '''), {'user_id': user_id}).fetchall()
 
     return render_template('view_orders.html', orders=orders)
-
-@app.route('/review/<int:product_id>', methods=['GET','POST'])
-def review(product_id):
-    with engine.begin() as conn:
-        products = conn.execute(text('SELECT * FROM products WHERE product_id =:product_id'),{'product_id':product_id}).fetchone()
-    return render_template('product.html', product=products)
 
 # *** END OF CUSTOMER FUNCTIONALITY ***
 
