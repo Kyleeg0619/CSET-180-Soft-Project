@@ -1,8 +1,10 @@
-import datetime
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for
 from sqlalchemy import create_engine, text
 from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
+
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mySuperSecretKey1234567890'
@@ -375,44 +377,44 @@ def edit_product_submit(product_id):
             })
             return redirect(url_for('vendor'))
         
-@app.route('/vendor/chat', methods=['GET', 'POST'])
-def chat():
-    messages = []
-    user_type = None
+# @app.route('/vendor/chat', methods=['GET', 'POST'])
+# def chat():
+#     messages = []
+#     user_type = None
 
-    if 'username' in session:
-        with engine.begin() as conn:
-            # Get user type
-            user = conn.execute(
-                text("SELECT user_type, user_id FROM users WHERE username = :username"),
-                {'username': session['username']}
-            ).fetchone()
+#     if 'username' in session:
+#         with engine.begin() as conn:
+#             # Get user type
+#             user = conn.execute(
+#                 text("SELECT user_type, user_id FROM users WHERE username = :username"),
+#                 {'username': session['username']}
+#             ).fetchone()
 
-            if user:
-                user_type = user.user_type
-                user_id = user.user_id
+#             if user:
+#                 user_type = user.user_type
+#                 user_id = user.user_id
 
-                if request.method == 'POST':
-                    content = request.form['message']
-                    conn.execute(
-                        text("""
-                            INSERT INTO chat (user_id, content, timestamp)
-                            VALUES (:user_id, :content, NOW())
-                        """),
-                        {'user_id': user_id, 'content': content}
-                    )
+#                 if request.method == 'POST':
+#                     content = request.form['message']
+#                     conn.execute(
+#                         text("""
+#                             INSERT INTO chat (user_id, content, timestamp)
+#                             VALUES (:user_id, :content, NOW())
+#                         """),
+#                         {'user_id': user_id, 'content': content}
+#                     )
 
-                result = conn.execute(
-                    text("""
-                        SELECT u.username, c.content, c.timestamp
-                        FROM chat c
-                        JOIN users u ON c.user_id = u.user_id
-                        ORDER BY c.timestamp DESC
-                    """)
-                )
-                messages = result.fetchall()
+#                 result = conn.execute(
+#                     text("""
+#                         SELECT u.username, c.content, c.timestamp
+#                         FROM chat c
+#                         JOIN users u ON c.user_id = u.user_id
+#                         ORDER BY c.timestamp DESC
+#                     """)
+#                 )
+#                 messages = result.fetchall()
 
-    return render_template('chat.html', messages=messages, user_type=user_type)
+#     return render_template('chat.html', messages=messages, user_type=user_type)
 
 @app.route('/handle_product_action', methods=['POST'])
 def handle_product_action():
@@ -797,6 +799,102 @@ def view_reviews():
     return render_template('view_reviews.html', reviews=reviews)
 
 # *** END OF CUSTOMER FUNCTIONALITY ***
+
+
+# """ CHAT FUNCTIONALITY """
+# Customer
+@app.route('/choose_vendor')
+def choose_vendor():
+    with engine.connect() as conn:
+        vendors = conn.execute(text("SELECT * FROM users WHERE user_type = 'vendor'")).fetchall()
+    return render_template('choose_vendor.html', vendors=vendors)
+
+@app.route('/c_chat/<int:user_id>', methods=['GET', 'POST'])
+def c_chat(user_id):
+    customer_id = session['user_id']
+    vendor_id = user_id
+
+    if request.method == 'POST':
+        message = request.form.get('message')
+        if message:
+            query = text("""
+                INSERT INTO chat (sender_id, recipient_id, content, timestamp)
+                VALUES (:sender_id, :recipient_id, :content, :timestamp)
+            """)
+            with engine.connect() as conn:
+                
+                conn.execute(query, {
+                    'sender_id': customer_id,
+                    'recipient_id': vendor_id,
+                    'content': message,
+                    'timestamp': datetime.datetime.now()
+                })
+               
+                conn.commit()  
+
+        return redirect(url_for('choose_vendor', user_id=vendor_id))
+
+    with engine.connect() as conn:
+        messages = conn.execute(text("""
+            SELECT chat.*, u.first_name AS sender_name
+            FROM chat
+            JOIN users u ON chat.sender_id = u.user_id
+            WHERE (sender_id = :customer AND recipient_id = :vendor)
+               OR (sender_id = :vendor AND recipient_id = :customer)
+            ORDER BY timestamp
+        """), {'customer': customer_id, 'vendor': vendor_id}).fetchall()
+
+        vendor = conn.execute(text("SELECT * FROM users WHERE user_id = :id"), {'id': vendor_id}).fetchone()
+
+    return render_template('c_chat.html', messages=messages, vendor=vendor)
+
+# Vendor
+@app.route('/vendor/v_chat')
+def v_chat(): 
+    vendor_id = session.get('user_id')
+
+    query = text('''
+        SELECT chat.id,
+               chat.sender_id,
+               chat.recipient_id,
+               chat.content,
+               chat.timestamp,
+               sender.username AS sender_username,
+               recipient.username AS recipient_username
+        FROM egarden.chat AS chat
+        JOIN users AS sender ON chat.sender_id = sender.user_id
+        JOIN users AS recipient ON chat.recipient_id = recipient.user_id
+        WHERE chat.recipient_id = :vendor_id
+    ''')
+
+    with engine.connect() as connection:
+        result = connection.execute(query, {'vendor_id': vendor_id})
+        messages = result.fetchall()
+
+    return render_template('v_chat.html', messages=messages) 
+
+@app.route('/reply', methods=['POST'])
+def reply():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  
+
+    sender_id = session['user_id'] 
+    recipient_id = request.form['recipient_id']
+    content = request.form['reply_content']
+    timestamp = datetime.now()
+
+    with engine.connect() as conn:
+        conn.execute(text("""
+            INSERT INTO chat (sender_id, recipient_id, content, timestamp)
+            VALUES (:sender_id, :recipient_id, :content, :timestamp)
+        """), {
+            'sender_id': sender_id,
+            'recipient_id': recipient_id,
+            'content': content,
+            'timestamp': timestamp
+        })
+
+    return redirect(url_for('v_chat')) 
 
 # *** Run & Debug ***
 if __name__ == '__main__':

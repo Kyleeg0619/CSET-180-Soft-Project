@@ -1,0 +1,61 @@
+<style>
+  body {
+      background: url(../static/images/butterfly.jpg);
+      background-repeat: no-repeat;
+      background-size: cover;
+  }
+
+  .vendor-container {
+      width: 60%;
+      background: var(--Violet--);
+      margin: 50px auto;
+      border-radius: 12px;
+      padding: 30px;
+      position: relative;
+      text-align: center;
+  }
+
+  h2 {
+      color: var(--pastel-purple--);;
+      margin-bottom: 20px;
+  }
+
+  .vendor-card {
+      background: var(--pastel-purple--);
+      padding: 15px 20px;
+      margin: 15px auto;
+      width: 80%;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease-in-out;
+  }
+  .vendor-card:hover {
+      transform: scale(1.05);
+      background: var(--lt-Violet--);
+  }
+
+  .vendor-card a {
+      text-decoration: none;
+      color: var(--Violet--);
+      font-weight: bold;
+      font-size: 18px;
+  }
+
+  .vendor-card a:hover {
+      color: var(--Celadon--);
+  }
+</style>
+
+{% extends "base.html" %}
+{% block content %}
+<div class="vendor-container">
+  <h2>Choose a Vendor to Message</h2>
+  {% for vendor in vendors %}
+      <div class="vendor-card">
+          <a href="{{ url_for('c_chat', user_id=vendor.user_id) }}">
+              {{ vendor.username }}
+          </a>
+      </div>
+  {% endfor %}
+</div>
+{% endblock %}
