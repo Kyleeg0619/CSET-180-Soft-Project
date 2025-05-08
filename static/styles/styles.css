@@ -22,13 +22,14 @@
   src: url(../fonts/roundedvale.ttf);
 }
 
-body, button, input {
+body, button, input, textarea {
   font-family: Titlefont, Arial, Helvetica, sans-serif;
 }
 
 /* Base.html */
   .barItem{
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
   }
   
   .logo {
@@ -352,24 +353,24 @@ body, button, input {
     }
 
     .sign-up {
-      font-family: 'Lato', sans-serif;
       display: block;
       border: 3px solid var(--Violet--);
       background: none;
       padding: 10px;
       border-radius: 50px;
-      color: #381941;
+      color: var(--Violet--);
       margin: 5px auto;
       font-size: 14px;
       text-decoration: none;
-      padding: 15px 8px;
-      width: 60%;
+      padding: 10px 15px;
+      width: max-content;
   }
 
   .sign-up:hover {
     background-color: #381941;
-    color: white;
-    transition: background-color 0.2s;
+    border: 3px solid var(--lt-Violet--);
+    color: var(--pastel-purple--);
+    transition: all 0.2s;
 }
 
 .product_form {
@@ -415,7 +416,7 @@ hr {
   padding: 10px 20px;
 }
 
-.filter button {
+.filter button, .view-order {
   z-index: -1;
   background: var(--Violet--);
   color: var(--pastel-purple--);
@@ -424,6 +425,8 @@ hr {
   padding: 10px;
   display: block;
   margin: 0 auto;
+  width: max-content;
+  text-decoration: none;
 }
 
 .filter select {
