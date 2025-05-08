@@ -6,14 +6,13 @@
         background-position: center;
         background-size: cover;
         background-repeat: no-repeat;
+        align-items: center;
+        height: 100vh;
 }
 .cart-container {
-    background-image: url("{{ url_for('static', filename='images/pastel_background.jpg') }}");
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    margin: 40px auto;
-    padding: 30px;
+    background: white;
+    margin: 10px auto 40px auto;
+    padding: 100px 30px 30px 30px;
     width: 80%;
     max-width: 900px;
     border-radius: 20px;
@@ -71,6 +70,7 @@
     display: block;
     margin: 30px auto 0;
     background: #8c5383;
+    text-decoration: none;
     color: white;
     border: none;
     padding: 15px 30px;
@@ -85,6 +85,7 @@
 </style>
 <body>
 <div class="cart-container">
+    <img src="../static/images/floral-laptop.PNG" alt="" width="30%" style="margin: -220px auto 20px auto;display: block;max-width: 300px;z-index: 10;">
     <h1 class="cart-title">Cart</h1>
 
     {% if cart_items %}

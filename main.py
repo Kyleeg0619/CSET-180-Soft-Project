@@ -73,7 +73,7 @@ def login():
         password = request.form['password']
         email = request.form['email']
 
-        if username == 'admin' and password == 'admin':
+        if (username == 'admin' and password == 'admin') or (username == 'admin2' and password == 'admin2'):
             session['loggedin'] = True
             session['username'] = 'admin'
             session['user_type'] = 'admin'
@@ -520,7 +520,9 @@ def customer(page=1):
         
         products = conn.execute(text('SELECT * FROM products LIMIT :per_page OFFSET :page'),{'per_page':per_page,'page':page_limit}).fetchall()
 
-    return render_template('customer.html', account=account, products=products, page=page, per_page=per_page)
+        current_date = datetime.datetime.now()
+
+    return render_template('customer.html', account=account, products=products, page=page, per_page=per_page, current_date=current_date)
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -613,7 +615,7 @@ def add_to_cart():
             }
         )
 
-    return redirect(url_for('product', product_id=product_id))
+    return redirect(url_for('customer'))
 
 
 @app.route('/cart')
@@ -685,6 +687,14 @@ def place_order():
             WHERE ci.user_id = :user_id
         '''), {'user_id': user_id}).fetchall()
 
+        cart_item_ids = conn.execute(
+            text('SELECT product_id FROM cart_items WHERE user_id = :user_id'),
+            {'user_id': user_id}
+        ).fetchall()
+
+        product_ids = [row[0] for row in cart_item_ids]
+        product_list = ','.join(map(str,product_ids))
+
         if not cart_items:
             return redirect(url_for('view_cart'))
 
@@ -692,15 +702,16 @@ def place_order():
 
         # Insert the order
         conn.execute(text('''
-            INSERT INTO orders (user_id, full_name, address, payment_info, order_date, total_items)
-            VALUES (:user_id, :full_name, :address, :payment_info, :order_date, :total_items)
+            INSERT INTO orders (user_id, full_name, address, payment_info, order_date, total_items,item_list)
+            VALUES (:user_id, :full_name, :address, :payment_info, :order_date, :total_items,:item_list)
         '''), {
             'user_id': user_id,
             'full_name': full_name,
             'address': address,
             'payment_info': payment_info,
             'order_date': now,
-            'total_items': len(cart_items)
+            'total_items': len(cart_items),
+            'item_list':product_list
         })
 
         # Update product quantities
@@ -750,6 +761,130 @@ def view_orders():
 
     return render_template('view_orders.html', orders=orders)
 
+@app.route('/complaints/<int:order_id>', methods=['GET', 'POST'])
+def complaint(order_id):
+    complaint_validity = ''
+    rejected = 'rejected'
+
+    with engine.begin() as conn:
+        order = conn.execute(
+            text('SELECT * FROM orders WHERE order_id = :order_id'),
+            {'order_id': order_id}
+        ).fetchone()
+
+    if request.method == 'POST':
+        complaint_date = datetime.datetime.now().date()
+        complaint_title = request.form['complaint_title']
+        complaint_desc = request.form['complaint_desc']
+        complaint_demand = request.form['complaint_demand']
+
+        with engine.begin() as conn:
+            order = conn.execute(
+            text('SELECT * FROM orders WHERE order_id = :order_id'),
+            {'order_id': order_id}
+        ).fetchone()
+            
+            product_list = order.item_list.split(',')
+            print(product_list)
+            for product_id in product_list:
+                warranty = conn.execute(text('SELECT product_warranty FROM products WHERE product_id = :product_id'),{'product_id':product_id}).fetchone()
+                print(warranty)
+                warranty_str = warranty[0]
+                print(warranty_str)
+                print(complaint_date)
+
+                if warranty_str < complaint_date and complaint_demand == 'warranty':
+                    complaint_validity = 'invalid'
+                    break
+                else:
+                    complaint_validity = 'valid'
+
+                if complaint_validity == 'valid':
+                    conn.execute(
+                    text('''
+                        INSERT INTO complaints (
+                            order_id, order_date, complaint_date,
+                            complaint_title, complaint_desc, complaint_demand
+                        )
+                        VALUES (
+                            :order_id, :order_date, :complaint_date,
+                            :complaint_title, :complaint_desc, :complaint_demand
+                        )
+                    '''), {
+                        'order_id': order_id,
+                        'order_date': order.order_date,
+                        'complaint_date': complaint_date,
+                        'complaint_title': complaint_title,
+                        'complaint_desc': complaint_desc,
+                        'complaint_demand': complaint_demand
+                    }
+                )
+                elif complaint_validity == 'invalid':
+                    conn.execute(
+                    text('''
+                        INSERT INTO complaints (
+                            order_id, order_date, complaint_date,
+                            complaint_title, complaint_desc, complaint_demand, complaint_status
+                        )
+                        VALUES (
+                            :order_id, :order_date, :complaint_date,
+                            :complaint_title, :complaint_desc, :complaint_demand, :complaint_status
+                        )
+                    '''), {
+                        'order_id': order_id,
+                        'order_date': order.order_date,
+                        'complaint_date': complaint_date,
+                        'complaint_title': complaint_title,
+                        'complaint_desc': complaint_desc,
+                        'complaint_demand': complaint_demand,
+                        'complaint_status': rejected
+                    }
+                )
+        return redirect(url_for('customer'))
+
+    return render_template('complaint.html', order=order)
+
+@app.route('/vendor/complaints', methods=['GET','POST'])
+def complaint_status():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    with engine.begin() as conn:
+        complaints_rejected = conn.execute(text('SELECT * FROM complaints WHERE complaint_status ="rejected"')).fetchall()
+        complaints_pending = conn.execute(text('SELECT * FROM complaints WHERE complaint_status = "pending"')).fetchall()
+        complaints_confirmed = conn.execute(text('SELECT * FROM complaints WHERE complaint_status = "confirmed"')).fetchall()
+        complaints_complete = conn.execute(text('SELECT * FROM complaints WHERE complaint_status = "complete"')).fetchall()
+    
+    return render_template('vendor_complaints.html', complaints_rejected=complaints_rejected,complaints_pending=complaints_pending,complaints_confirmed=complaints_confirmed,complaints_complete=complaints_complete)
+
+@app.route('/complaints_pending',methods=['POST'])
+def complaints_pending():
+    order_id = request.form['order_id']
+    complaint_id = request.form['complaint_id']
+    with engine.begin() as conn:
+        if request.method == 'POST':
+            action = request.form.get('action')
+            if action == 'confirm':
+                conn.execute(text('UPDATE complaints SET complaint_status = "confirmed" WHERE order_id = :order_id AND complaint_id = :complaint_id'),{'order_id':order_id,'complaint_id':complaint_id})
+            elif action == 'reject':
+                conn.execute(text('UPDATE complaints SET complaint_status = "rejected" WHERE order_id = :order_id AND complaint_id = :complaint_id'),{'order_id':order_id,'complaint_id':complaint_id})
+            return redirect(url_for('complaint_status'))
+
+@app.route('/complaints_confirmed',methods=['POST'])
+def complaints_confirmed():
+    order_id = request.form['order_id']
+    complaint_id = request.form['complaint_id']
+    with engine.begin() as conn:
+        conn.execute(text('UPDATE complaints SET complaint_status = "complete" WHERE order_id = :order_id AND complaint_id = :complaint_id'),{'order_id':order_id,'complaint_id':complaint_id})
+    return redirect(url_for('complaint_status'))
+
+@app.route('/complaints_rejected',methods=['POST'])
+def complaints_rejected():
+    order_id = request.form['order_id']
+    complaint_id = request.form['complaint_id']
+    with engine.begin() as conn:
+        conn.execute(text('UPDATE complaints SET complaint_status = "rejected" WHERE order_id = :order_id AND complaint_id = :complaint_id'),{'order_id':order_id,'complaint_id':complaint_id})
+    return redirect(url_for('complaint_status'))
 # *** END OF CUSTOMER FUNCTIONALITY ***
 
 # *** Run & Debug ***

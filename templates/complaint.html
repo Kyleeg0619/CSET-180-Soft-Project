@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    body {
+        background: url(../static/images/moon-bkg.png);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .returns {
+        position: relative;
+        display: flex;
+        background: #fff;
+        width: 50%;
+        margin: 50px auto;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        height: 500px;
+        min-height: 500px;
+        align-self: center;
+        align-content: center;
+        padding: 30px;
+        gap: 30px;
+    }
+
+    .order_info {
+        width: 30%;
+    }
+
+    .complaint_form {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+    }
+
+    .complaint_form input {
+        border-radius: 30px;
+    }
+
+    .complaint_form input, textarea {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        margin: 10px 0;
+    }
+
+    textarea {
+        height: 100%;
+        resize: none;
+        border-radius: 20px;
+    }
+
+    .issue::content {
+        display: inline-block;
+    }
+
+    .issue select {
+        padding: 10px 15px;
+        margin: 10px 0;
+        border-radius: 20px;
+    }
+
+    #star {
+        position: absolute;
+        right: -50px;
+        top: -50px;
+        width: 125px;
+    }
+</style>
+
+<div class="returns">
+    <div class="order_info">
+        <h3>Order #{{order.order_id}}</h3>
+        <p><strong>Date:</strong> {{order.order_date.strftime('%B %d, %Y')}}</p>
+        <p><strong>Shipping Address:</strong> {{order.full_name}}</p>
+        <p><strong>Order Status:</strong> {{order.order_status}}</p>
+        <p><strong>Payment Info:</strong> {{order.payment_info}}</p>
+        <p><strong>Total Items:</strong> {{order.total_items}}</p>
+        <img src="../static/images/return.PNG" alt="" width="150%" style="margin-left: -50%;">
+    </div>
+    <form method="POST" action="/complaints/{{ order.order_id }}" class="complaint_form">
+        <input type="text" name="complaint_title" placeholder="Title" required>
+        <textarea name="complaint_desc" placeholder="Description" required></textarea>
+        <div class="issue">
+            <label for="complaint_demand">Issue Type:</label>
+            <select name="complaint_demand" required>
+                <option value="return">Return</option>
+                <option value="refund">Refund</option>
+                <option value="warranty">Warranty Claim</option>
+            </select>
+        </div>
+        <input type="hidden" name="order_date" value="{{order.order_date.strftime('%B %d, %Y')}}">
+        <button type="submit" class="sign-up">Submit</button>
+    </form>
+    <img src="../static/images/metal-star.png" alt="" id="star">
+</div>
+
+{% endblock %}
