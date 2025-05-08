@@ -73,16 +73,10 @@ def login():
         password = request.form['password']
         email = request.form['email']
 
-<<<<<<< HEAD
-        if username == 'admin' and password == 'admin':
-            session['loggedin'] = True
-            session['username'] = 'admin'
-=======
         if (username == 'admin' and password == 'admin') or (username == 'admin2' and password == 'admin2'):
             session['loggedin'] = True
             session['username'] = 'admin'
             session['user_type'] = 'admin'
->>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
             return redirect(url_for('admin'))
         else:
             with engine.begin() as conn:
@@ -129,15 +123,6 @@ def admin():
         products = conn.execute(text('SELECT * FROM products')).fetchall()
 
     return render_template('admin.html', products=products, reviews=reviews)
-<<<<<<< HEAD
-
-@app.route('/admin/products/admin_modify_product')
-def admin_modify_product():
-    return render_template('admin_modify_product.html')
-
-@app.route('/admin/products/admin_add_product', methods=["GET", "POST"])
-def admin_add_product():
-=======
 
 @app.route('/admin/products/admin_add_product', methods=["GET", "POST"])
 def admin_add_product():
@@ -147,7 +132,6 @@ def admin_add_product():
                        {'user_type': user_type}).fetchall()
         vendors = [vendor[0] for vendor in vendors]
 
->>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
     if request.method == "POST":
         vendor_username = request.form.get('vendor_username', '').strip()
         if not vendor_username:
@@ -182,23 +166,13 @@ def admin_add_product():
                 'product_quantity':product_quantity,
                 'original_price': original_price,
                 'discount_price': discount_price,
-<<<<<<< HEAD
-                'discount_date_end': discount_date_end,
-                'product_warranty': product_warranty,
-                'vendor_username': request.form['vendor_username']                                       
-=======
                 'discount_date_end': discount_date_end, 'product_warranty':product_warranty, 'vendor_username':vendor_username
->>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
             })
 
         msg = 'You have successfully added a product.'
         return redirect(url_for('admin'))
 
-<<<<<<< HEAD
-    return render_template('admin_add_product.html')
-=======
     return render_template('admin_add_product.html', vendors=vendors)
->>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
 
 @app.route('/admin/products/admin_edit_product/<int:product_id>', methods=["GET", "POST"])
 def admin_edit_product(product_id):
@@ -213,13 +187,7 @@ def admin_edit_product(product_id):
 
     return render_template(
         'admin_edit_product.html',
-<<<<<<< HEAD
-        product=product,
-        product_colors=product_colors,
-        product_sizes=product_sizes, json=json
-=======
         product=product
->>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
     )
 
 @app.route('/admin_edit_product_submit/<int:product_id>', methods=['POST'])
