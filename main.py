@@ -152,6 +152,7 @@ def admin_add_product():
         product_warranty = product_warranty_raw if product_warranty_raw else None
         original_price = float(original_price_raw) if original_price_raw else None
         discount_price = float(discount_price_raw) if discount_price_raw else None
+        
 
         colors = request.form.getlist('colors')
         sizes = request.form.getlist('sizes')
@@ -167,7 +168,9 @@ def admin_add_product():
                 'product_quantity':product_quantity,
                 'original_price': original_price,
                 'discount_price': discount_price,
-                'discount_date_end': discount_date_end, 'product_warranty':product_warranty, 'vendor_username':vendor_username
+                'discount_date_end': discount_date_end,
+                'product_warranty': product_warranty,
+                'vendor_username': request.form['vendor_username']                                       
             })
 
         msg = 'You have successfully added a product.'
@@ -377,44 +380,6 @@ def edit_product_submit(product_id):
             })
             return redirect(url_for('vendor'))
         
-# @app.route('/vendor/chat', methods=['GET', 'POST'])
-# def chat():
-#     messages = []
-#     user_type = None
-
-#     if 'username' in session:
-#         with engine.begin() as conn:
-#             # Get user type
-#             user = conn.execute(
-#                 text("SELECT user_type, user_id FROM users WHERE username = :username"),
-#                 {'username': session['username']}
-#             ).fetchone()
-
-#             if user:
-#                 user_type = user.user_type
-#                 user_id = user.user_id
-
-#                 if request.method == 'POST':
-#                     content = request.form['message']
-#                     conn.execute(
-#                         text("""
-#                             INSERT INTO chat (user_id, content, timestamp)
-#                             VALUES (:user_id, :content, NOW())
-#                         """),
-#                         {'user_id': user_id, 'content': content}
-#                     )
-
-#                 result = conn.execute(
-#                     text("""
-#                         SELECT u.username, c.content, c.timestamp
-#                         FROM chat c
-#                         JOIN users u ON c.user_id = u.user_id
-#                         ORDER BY c.timestamp DESC
-#                     """)
-#                 )
-#                 messages = result.fetchall()
-
-#     return render_template('chat.html', messages=messages, user_type=user_type)
 
 @app.route('/handle_product_action', methods=['POST'])
 def handle_product_action():
@@ -763,7 +728,6 @@ def view_orders():
 
     return render_template('view_orders.html', orders=orders)
 
-<<<<<<< HEAD
 
 from sqlalchemy import text
 
@@ -810,7 +774,6 @@ def view_reviews():
         reviews = result.fetchall()
     return render_template('view_reviews.html', reviews=reviews)
 
-=======
 @app.route('/complaints/<int:order_id>', methods=['GET', 'POST'])
 def complaint(order_id):
     complaint_validity = ''
@@ -935,7 +898,6 @@ def complaints_rejected():
     with engine.begin() as conn:
         conn.execute(text('UPDATE complaints SET complaint_status = "rejected" WHERE order_id = :order_id AND complaint_id = :complaint_id'),{'order_id':order_id,'complaint_id':complaint_id})
     return redirect(url_for('complaint_status'))
->>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
 # *** END OF CUSTOMER FUNCTIONALITY ***
 
 
