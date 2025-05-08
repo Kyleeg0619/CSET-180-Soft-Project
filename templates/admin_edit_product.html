@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
+<<<<<<< HEAD
+    .a_add_product {
+=======
     .add_product {
+>>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
       display: block;
       color: var(--lt-Violet--);
       padding: 15px;
@@ -17,7 +21,11 @@
       justify-self: center;
     }
 
+<<<<<<< HEAD
+    .a_add_product img {
+=======
     .add_product img {
+>>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
       display: block;
       width: 50%;
       height: max-content;
@@ -53,8 +61,13 @@
       display: flex;
     }
 </style>
+<<<<<<< HEAD
+<div class="a_add_product">
+    <h1>Edit A Product</h1> 
+=======
 <div class="add_product">
     <h1>Edit A Product</h1>
+>>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
     <form action="{{ url_for('admin_edit_product_submit', product_id=product.product_id) }}" method="POST">
       <img src="{{ url_for('static', filename='images/tulip.png') }}" alt="sprout">
         <div class="product-form">
@@ -64,6 +77,19 @@
             <label for="product_desc">Product Description: </label>
             <input type="text" id="product_desc" name="product_desc" value="{{product.product_desc}}" required>
             <br> 
+<<<<<<< HEAD
+            <label for="product_color">Product Color (Comma Separated): </label>
+            <input type="text" id="product_color" name="product_color" 
+       placeholder="e.g., Red, Blue, Green" 
+       value="{{ ', '.join(json.loads(product.product_color)) if product.product_color else '' }}" required>
+
+            <br>
+            <label for="product_sizes">Product Sizes (Comma Separated): </label>
+            <input type="text" id="product_sizes" name="product_sizes" 
+       placeholder="e.g., Small, Medium, Large" 
+       value="{{ ', '.join(json.loads(product.product_sizes)) if product.product_sizes else '' }}" required>
+
+=======
             <label for="product_color">Product Color: </label>
             <br>
             <input type="checkbox" name="colors" id="" value="Red"><label for="colors">Red</label>
@@ -90,6 +116,7 @@
             <br>
 
             <input type="checkbox" name="sizes" id="" value="Large"><label for="sizes">Large</label>
+>>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
             <br>
             <label for="product_quantity">Product Quantity: </label>
             <input type="number" id="product_quantity" name="product_quantity" value="{{product.product_quantity}}" required>
@@ -109,7 +136,11 @@
 
             <input type="hidden" name="product_id" value="{{product.product_id}}">
 
+<<<<<<< HEAD
+            <button type="submit" id="submit" class="admin-btn">Submit</button>
+=======
             <button type="submit" id="submit" class="sign-up">Submit</button>
+>>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
         </div>
 
     </form>

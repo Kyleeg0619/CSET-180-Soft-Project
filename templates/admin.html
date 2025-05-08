@@ -120,6 +120,32 @@
                         </form>
                         {% endfor %}
                     </div>
+<<<<<<< HEAD
+                    {% for product in products %} 
+                    <form method="POST" action="{{ url_for('admin_handle_product_action') }}" class="product_form">
+                        <img src="{{ url_for('static', filename='images/tulip.png') }}" alt="">
+                        <ul class="product">
+                            <li>Product ID: {{ product['product_id']}}</li>
+                            <li>Product Name: {{ product['product_name']}}</li>
+                            <li>Description: {{ product['product_desc']}}</li>
+                            <li>Colors: {{product['product_color']}}
+                            </li>
+                            <li>Sizes: {{product['product_sizes']}}
+                            </li>
+                            <li>Quantity: {{ product['product_quantity']}}</li>
+                            <li>Warranty: {% if product['product_warranty'] %}{{ product['product_warranty'] }}{% else %}No warranty{% endif %}</li>
+                            <li>Original Price: {{ product['original_price']}}</li>
+                            <li>Discount Price: {{ product['discount_price']}}</li>
+                        </ul>
+        
+                        <input type="hidden" name="product_id" value="{{product['product_id']}}">
+        
+                        <button class="signup" name="action" type="submit" value="edit">Edit</button>
+                        <button class="signup" name="action" type="submit" value="delete">Delete</button>
+                    </form>
+                    {% endfor %}
+=======
+>>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
                 </div>
         
                 <div class="plan-items" style="width: 31%;max-width: 300px;border-radius: 0 10px 10px 0;">
