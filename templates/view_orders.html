@@ -2,13 +2,18 @@
 {% block content %}
 <style>
     body{
-        background-color: pink;
+        background: url(../static/images/moon-bkg.png);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }
+
     .orders-container {
+        position: relative;
         background: #fff;
         padding: 30px;
         width: 80%;
-        margin: 50px auto;
+        margin: 100px auto;
         border-radius: 20px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
@@ -36,6 +41,25 @@
     .order-box p {
         margin: 8px 0;
     }
+
+    .sign-up {
+        margin: 0;
+    }
+
+    #moon {
+        position: absolute;
+        left: -100px;
+        bottom: -100px;
+        width: 180px;
+    }
+
+    #star {
+        position: absolute;
+        right: -50px;
+        top: -50px;
+        width: 125px;
+    }
+
 </style>
 <body>
 <div class="orders-container">
@@ -47,16 +71,24 @@
             <h3>Order #{{ order.order_id }}</h3>
             <p><strong>Date:</strong> {{ order.order_date.strftime('%B %d, %Y') }}</p>
             <p><strong>Shipping Address:</strong> {{ order.full_name }} – {{ order.address }}</p>
-            <p><strong>Order Status:</strong> </p>
+            <p><strong>Order Status:</strong> {{order.order_status}} </p>
             <p><strong>Payment Info:</strong> {{ order.payment_info }}</p>
             <p><strong>Total Items:</strong> {{ order.total_items }}</p>
+<<<<<<< HEAD
         
             <a href="{{ url_for('review', order_id=order.order_id) }}" class="btn review-btn">Review Order</a>
+=======
+            <input type="hidden" value="{{order.order_id}}">
+                    <a href="{{ url_for('complaint', order_id=order.order_id) }}" style="text-decoration: none;">
+                    <input type="submit" value="Returns" class="sign-up"></a>
+>>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
         </div>
         {% endfor %}
     {% else %}
         <p style="text-align:center;">You have no past orders.</p>
     {% endif %}
+    <img src="../static/images/crecent-moon.png" alt="" id="moon">
+    <img src="../static/images/metal-star.png" alt="" id="star">
 </div>
 </body>
 {% endblock %}

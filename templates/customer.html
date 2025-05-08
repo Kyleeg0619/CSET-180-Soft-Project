@@ -49,10 +49,6 @@
         margin: 0 auto;
     }
 
-    .customer-info {
-        padding-bottom: 15px;
-    }
-
     .customer-info ul {
         padding: 10px 20px;
     }
@@ -187,6 +183,10 @@
         padding: 5px;
     }
 
+    .view-order {
+        margin: 5px auto;
+    }
+
 </style>
     <section class="store-page">
         <section id="side-bar">
@@ -200,9 +200,13 @@
                         <li>Username: {{account.username}}</li>
                         <li>Fullname: {{account.first_name + ' ' + account.last_name}}</li>
                         <li>Email: {{account.email}}</li>
+<<<<<<< HEAD
                         <a href="{{ url_for('view_orders') }}">View Orders</a>
                         <a href="{{ url_for('view_reviews')}}">View Reviews</a>
 
+=======
+                        <a href="{{ url_for('view_orders') }}" class="view-order">View Orders</a>
+>>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
                     </ul>
                 </div>
             </div>
