@@ -8,21 +8,18 @@
         --Celadon--: #d7e7c3;
     }
     
-    .admin_wrapper {
-        display: flex;
-        flex-direction: column;
+    .vendor_wrapper {
         min-height: 100vh;
     }
     
-    .admin_container {
-        background-color: aliceblue;
-        background-image: url("https://i.pinimg.com/736x/0b/61/f1/0b61f1f87e16785ea935dcf261cb80b3.jpg");
+    .vendor_container {
+        background-image: url(https://i.pinimg.com/736x/0b/61/f1/0b61f1f87e16785ea935dcf261cb80b3.jpg);
         background-size: cover;
         background-position: center;
+        background-repeat: no-repeat;
         color: var(--Violet--);
         padding-top: 10px;
         padding-bottom: 80px;
-        flex-grow: 1;
     }
     
     /* boxes section */
@@ -41,22 +38,15 @@
     
     .plan-items {
         min-height: 50vh;
-        margin: 1%;
-        border-radius: 5px;
-        font-size: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        background-image: url("{{ url_for('static', filename='images/flower.jpg') }}");
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center center;
         transition: box-shadow 0.3s ease;
         position: relative;
         overflow: visible;
+        background: var(--grey-purple--);
     }
+    
     
     .plan-items div {
         padding: 15px;
-        font-size: 20px;
         text-align: center;
     }
     
@@ -70,34 +60,67 @@
         text-align: center;
     }
     
-    .corner-logo2,
+    .corner-logo1,
     .corner-logo3 {
         position: absolute;
-        bottom: -15px;
-        width: 40px;
-        height: 40px;
+        width: 120px;
         z-index: 2;
     }
-
-    .corner-logo2 {
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    .corner-logo3 { right: -15px; }
     
-
-</style>
+    .corner-logo1 { 
+        left: -60px; 
+        top: -50px;
+    }
+    .corner-logo3 { 
+        right: -55px;
+        bottom: -50px;
+    }
+    
+    #user-icon {
+        width: 100px;
+        margin: 0 auto;
+        display: block;
+        margin-top: 10px;
+    }
+    
+    </style>
 <div class="admin_wrapper">
-    <div class="admin_container">
-        <h1> Welcome, Admin.</h1>
+    <div class="vendor_container">
         <section class="plans-section">
             <div class="plans-showcase">
             
-                <div class="plan-items" style="width: 800px;">
-                    <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo2">
+                <div class="plan-items" style="width: 800px;border-radius: 10px 0 0 10px;">
+                    <img src="{{ url_for('static', filename='images/metal-flower.png') }}" alt="Badge" class="corner-logo1">
                     <div>
-                        <h1 style="padding-top: 40px;">Products</h1>
+                        <h1 style="padding-top: 40px;">Product Garden</h1>
                     </div>
+                    <div class="products">
+                        {% for product in products %}
+                        <form method="POST" action="{{ url_for('admin_handle_product_action') }}" class="product_form">
+                            <p id="x-icon" style="justify-self: self-start;">&#10005;</p>
+                    <hr>
+                            <ul class="product">
+                                <img src="{{ url_for('static', filename='images/tulip.png') }}" alt="">
+                                <li>Vendor: {{ product.vendor_username }}</li>
+                                <li>Product ID: {{ product['product_id']}}</li>
+                                <li>Product Name: {{ product['product_name']}}</li>
+                                <li>Description: {{ product['product_desc']}}</li>
+                                <li>Colors: {{product['product_color']}}
+                                </li>
+                                <li>Sizes: {{product['product_sizes']}}
+                                </li>
+                                <li>Quantity: {{ product['product_quantity']}}</li>
+                                <li>Warranty: {% if product['product_warranty'] %}{{ product['product_warranty'] }}{% else %}No warranty{% endif %}</li>
+                                <li>Original Price: {{ product['original_price']}}</li>
+                                <li>Discount Price: {{ product['discount_price']}}</li>
+                            </ul>
+                            <input type="hidden" name="product_id" value="{{product['product_id']}}">
+                            <button class="sign-up" name="action" type="submit" value="edit">Edit</button>
+                            <button class="sign-up" name="action" type="submit" value="delete">Delete</button>
+                        </form>
+                        {% endfor %}
+                    </div>
+<<<<<<< HEAD
                     {% for product in products %} 
                     <form method="POST" action="{{ url_for('admin_handle_product_action') }}" class="product_form">
                         <img src="{{ url_for('static', filename='images/tulip.png') }}" alt="">
@@ -121,10 +144,12 @@
                         <button class="signup" name="action" type="submit" value="delete">Delete</button>
                     </form>
                     {% endfor %}
+=======
+>>>>>>> 6f49fe521a32b4634e1f4b0428b9492aff4e82ae
                 </div>
         
-                <div class="plan-items" style="width: 31%;max-width: 300px;">
-                    <img src="{{ url_for('static', filename='images/flowerbadge.jpg') }}" alt="Badge" class="corner-logo3">
+                <div class="plan-items" style="width: 31%;max-width: 300px;border-radius: 0 10px 10px 0;">
+                    <img src="{{ url_for('static', filename='images/metal-blossom.png') }}" alt="Badge" class="corner-logo3">
                     <div>
                         <h1 style="padding-top: 40px;">Admin Dashboard</h1>
                     </div>

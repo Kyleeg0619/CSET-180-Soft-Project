@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+   body{
+        background-image: url("{{ url_for('static', filename='images/pastel_background.jpg') }}");
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        align-items: center;
+        height: 100vh;
+}
+.cart-container {
+    background: white;
+    margin: 10px auto 40px auto;
+    padding: 100px 30px 30px 30px;
+    width: 80%;
+    max-width: 900px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cart-title {
+    font-size: 36px;
+    text-align: center;
+    color: var(--Violet--, #8c5383);
+    margin-bottom: 20px;
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart-table th, .cart-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+}
+
+.cart-table th {
+    font-size: 18px;
+    color: var(--Violet--, #8c5383);
+    font-weight: bold;
+}
+
+.cart-remove-button {
+    background: #8c5383;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.cart-remove-button:hover {
+    background: #9d6094;
+}
+
+.cart-total {
+    text-align: right;
+    font-size: 22px;
+    margin-top: 20px;
+    font-weight: bold;
+    color: var(--Violet--, #8c5383);
+}
+
+.purchase-button {
+    display: block;
+    margin: 30px auto 0;
+    background: #8c5383;
+    text-decoration: none;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.purchase-button:hover {
+    background: #9d6094;
+}
+</style>
+<body>
+<div class="cart-container">
+    <img src="../static/images/floral-laptop.PNG" alt="" width="30%" style="margin: -220px auto 20px auto;display: block;max-width: 300px;z-index: 10;">
+    <h1 class="cart-title">Cart</h1>
+
+    {% if cart_items %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Item ID</th>
+                <th>Size</th>
+                <th>Color</th>
+                <th>Quantity</th>
+                <th>Item Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.product_id }}</td>
+                <td>{{ item.size | replace('[','') | replace(']','') | replace('"','') | replace("'",'') }}</td>
+                <td>{{ item.color | replace('[','') | replace(']','') | replace('"','') | replace("'",'') }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ '%.2f' % (item.price * item.quantity) }}</td>
+                <td>
+                    <form action="{{ url_for('remove_from_cart') }}" method="POST" style="display:inline;">
+                        <input type="hidden" name="cart_item_id" value="{{ item.cart_item_id }}">
+                        <button type="submit" class="cart-remove-button">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+
+    <div class="cart-total">
+        Total Price: ${{ '%.2f' % total_price }}
+    </div>
+    <a href="{{ url_for('checkout') }}" class="purchase-button">Proceed to Checkout</a>
+
+    {% else %}
+    <p style="text-align:center; font-size:18px;">Your cart is empty!</p>
+    <a href="{{ url_for('customer') }}" class="purchase-button" style="margin-top:30px;">Continue Shopping</a>
+    {% endif %}
+</div>
+</body>
+{% endblock %}

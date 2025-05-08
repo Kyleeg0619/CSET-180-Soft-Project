@@ -1,0 +1,169 @@
+<style>
+    body {
+        background: url(../static/images/order-dashboard.png);
+        background-repeat: none;
+        background-size: cover;
+    }
+
+    #pending, #confirm, #handed, #shipped {
+        display: inline-block;
+        width: 300px;
+        margin: 10px;
+    }
+
+    #pending img {
+        width: 200px;
+    }
+
+    #confirm img {
+        width: 200px;
+    }
+
+    #handed img, #shipped img {
+        width: 300px;
+    }
+
+    #daisy {
+        position: absolute;
+        width: 150px;
+        right: -50px;
+        top: -50px;
+    }
+
+    .order-status {
+        display: block;
+        align-self: center;
+        width: 60%;
+        background: var(--pastel-purple--);
+        margin: 50px auto;
+        border-radius: 10px;
+        position: relative;
+    }
+
+
+
+    .shrub {
+        display: block;
+        margin: 0 auto;
+    }
+
+    .card {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .card button {
+        display: block;
+        background: var(--Celadon--);
+        border: none;
+        color: #5b8463;
+        padding: 20px;
+        margin: 10px auto;
+        border-radius: 50px;
+    }
+
+    .card button:hover {
+        background: #5b8463;
+        color: var(--grey-purple--);
+    }
+
+    h2 {
+        text-align: center;
+        margin: 10px 0 20px 0;
+    }
+
+    h1 {
+        display: inline-block;
+    }
+    #x-icon {
+        display: inline-block;
+    }
+
+    #tab-title {
+        display: inline-block;
+        color: var(--Violet--);
+        padding: 5px;
+        font-size: 20px;
+    }
+</style>
+
+{% extends 'base.html' %}
+    {% block content %}
+<div class="order-status">
+    <img src="../static/images/3d-daisy.png" alt="" id="daisy">
+    <p id="x-icon">&#10005;</p>
+    <p id="tab-title">Order Dashboard</p>
+    <hr>
+    <h2>Pending Orders</h2>
+    {% for order in orders_pending %}
+        <form method="POST" action="{{ url_for('orders_pending', order_id=order.order_id) }}" id="pending">
+            <img src="../static/images/sprout.PNG" alt="" class="shrub">
+            <div class="card">
+                <p>Order ID: {{ order.order_id }}</p>
+                <p>User ID: {{ order.user_id }}</p>
+                <p>Full Name: {{ order.full_name }}</p>
+                <p>Address: {{ order.address }}</p>
+                <p>Payment Info: {{ order.payment_info }}</p>
+                <p>Order Date: {{ order.order_date }}</p>
+                <p>Total Items: {{ order.total_items }}</p>
+                <p>Order Status: {{ order.order_status }}</p>
+                <button type="submit">Confirm Order</button>
+            </div>
+        </form>
+    {% endfor %}
+    
+    <h2>Orders Confirmed</h2>
+    {% for order in orders_confirmed %}
+        <form method="POST" action="{{ url_for('orders_confirmed', order_id=order.order_id) }}" id="confirm">
+            <img src="../static/images/tulip.PNG" alt="" class="shrub">
+            <div class="card">
+                <p>Order ID: {{ order.order_id }}</p>
+                <p>User ID: {{ order.user_id }}</p>
+                <p>Full Name: {{ order.full_name }}</p>
+                <p>Address: {{ order.address }}</p>
+                <p>Payment Info: {{ order.payment_info }}</p>
+                <p>Order Date: {{ order.order_date }}</p>
+                <p>Total Items: {{ order.total_items }}</p>
+                <p>Order Status: {{ order.order_status }}</p>
+                <button type="submit">Hand Order to delivery </button>
+            </div>
+        </form>
+    {% endfor %}
+    
+    <h2>Handed Orders</h2>
+    {% for order in orders_handed %}
+        <form method="POST" action="{{ url_for('orders_handed', order_id=order.order_id) }}" id="handed">
+            <img src="../static/images/strawberry.PNG" alt="" class="shrub">
+            <div class="card">
+                <p>Order ID: {{ order.order_id }}</p><p>Order ID: {{ order.order_id }}</p>
+                <p>User ID: {{ order.user_id }}</p>
+                <p>Full Name: {{ order.full_name }}</p>
+                <p>Address: {{ order.address }}</p>
+                <p>Payment Info: {{ order.payment_info }}</p>
+                <p>Order Date: {{ order.order_date }}</p>
+                <p>Total Items: {{ order.total_items }}</p>
+                <p>Order Status: {{ order.order_status }}</p>
+                <button type="submit">Ship Order</button>
+            </div>
+        </form>
+    {% endfor %}
+    
+    <h2>Shipped Orders</h2>
+    {% for order in orders_shipped %}
+        <form method="POST" action="{{ url_for('orders_shipped', order_id=order.order_id) }}" id="shipped">
+            <img src="../static/images/strawberry.PNG" alt="" class="shrub">
+            <div class="card">
+                <p>Order ID: {{ order.order_id }}</p><p>Order ID: {{ order.order_id }}</p>
+                <p>User ID: {{ order.user_id }}</p>
+                <p>Full Name: {{ order.full_name }}</p>
+                <p>Address: {{ order.address }}</p>
+                <p>Payment Info: {{ order.payment_info }}</p>
+                <p>Order Date: {{ order.order_date }}</p>
+                <p>Total Items: {{ order.total_items }}</p>
+                <p><strong>Order Status: {{ order.order_status }}</strong></p>
+            </div>
+        </form>
+    {% endfor %}
+</div>
+
+{% endblock %}

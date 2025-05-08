@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+body{
+    background-image: url("{{ url_for('static', filename='images/pastel_background.jpg') }}");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.checkout-container {
+    background-image: url("{{ url_for('static', filename='images/pastel_background.jpg') }}");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin: 50px auto;
+    padding: 40px;
+    width: 80%;
+    max-width: 900px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.checkout-title {
+    font-size: 36px;
+    text-align: center;
+    color: var(--Violet--, #8c5383);
+    margin-bottom: 30px;
+}
+
+.order-summary {
+    margin-bottom: 30px;
+}
+
+.order-summary table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-summary th, .order-summary td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+}
+
+.order-summary th {
+    font-size: 18px;
+    color: var(--Violet--, #8c5383);
+}
+
+.checkout-form {
+    margin-top: 30px;
+}
+
+.checkout-form label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--Violet--);
+}
+
+.checkout-form input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.checkout-button {
+    margin-top: 30px;
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background: var(--Violet--, #8c5383);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.checkout-button:hover {
+    background: #9d6094
+}
+</style>
+
+<div class="checkout-container">
+    <h1 class="checkout-title">Checkout</h1>
+
+    <div class="order-summary">
+        <h2 style="text-align:center;">Order Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Size</th>
+                    <th>Color</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.product_id }}</td>
+                    <td>{{ item.size | replace('[','') | replace(']','') | replace('"','') | replace("'",'') }}</td>
+                    <td>{{ item.color | replace('[','') | replace(']','') | replace('"','') | replace("'",'') }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ '%.2f' % (item.price * item.quantity) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <form class="checkout-form" action="/place_order" method="POST">
+        <label for="full_name">Full Name</label>
+        <input type="text" name="full_name" id="full_name" required>
+
+        <label for="address">Shipping Address</label>
+        <input type="text" name="address" id="address" required>
+
+        <label for="payment_info">Card number</label>
+        <input type="text" name="payment_info" id="payment_info" placeholder="Card Number" required>
+
+        <button type="submit" class="checkout-button">Place Order</button>
+    </form>
+</div>
+{% endblock %}
