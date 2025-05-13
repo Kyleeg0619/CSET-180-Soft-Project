@@ -8,7 +8,7 @@
             background-repeat: no-repeat;
     }
     .product {
-        display: inline-block;
+        display: block;
         background: var(--pastel-purple--);
         border-radius: 20px;
         width: 30%;
@@ -78,6 +78,59 @@
         margin-bottom: 20px;
     }
 
+    .reviews {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row-reverse;
+        gap: 20px;
+        margin: 0 auto;
+        width: 90%;
+    }
+
+    .review-block {
+        flex: 1;
+        margin: 20px auto;
+    }
+
+    .review {
+        display: block;
+         margin: 10px auto 15px auto;
+        width: 100%;
+    }
+
+    .filter {
+        display: block;
+        min-width: 250px;
+        max-width: 300px;
+        background: var(--pastel-purple--);
+        margin: 20px 0;
+        border-radius: 10px;
+        padding: 10px 20px;
+        text-align: center;
+    }
+
+    .filter select {
+        display: block;
+        margin: 5px auto;
+    }
+
+    .filter button {
+        z-index: -1;
+        background: var(--Violet--);
+        color: var(--pastel-purple--);
+        border: none;
+        border-radius: 30px;
+        padding: 10px;
+        display: block;
+        margin: 0 auto;
+        width: max-content;
+        text-decoration: none;
+    }
+
+    .filter form {
+        margin: 10px;
+    }
+
 </style>
 
 <body>
@@ -114,7 +167,7 @@
             <li><strong>Sold By:</strong> {{ product.vendor_username }}</li>
         </ul>
 
-        <form class="selection-form filter" action="/add_to_cart" method="POST">
+        <form class="selection-form filter" action="/add_to_cart" method="POST" style="margin: 0 auto;">
             
             <!-- Size -->
             <label for="size_{{ product.product_id }}">Choose Size:</label>
@@ -151,6 +204,48 @@
             <button type="submit" class="sign-up">Add to Cart</button>
         </form>
 
+    </div>
+    <h1>Reviews</h1>
+    <div class="reviews">
+        <div class="filter">
+            <form action="/sort_review" class="sort-review" method="POST">
+                <h3>Sort By</h3>
+                    <select name="sort">
+                        <option value="" selected ></option>
+                        <option value="rating">Rating</option>
+                        <option value="time">Time</option>
+                    </select>
+                    <input type="hidden" name="product_id" value="{{product.product_id}}">
+                    <button type="submit">Sort</button>
+            </form>
+            <form action="/filter_review" method="POST" class="filter-review">
+                <h3>Filter By Rating</h3>
+                    <select name="filter">
+                        <option value="" selected ></option>
+                        <option value="1">&#x2605;</option>
+                        <option value="2">&#x2605;&#x2605;</option>
+                        <option value="3">&#x2605;&#x2605;&#x2605;</option>
+                        <option value="4">&#x2605;&#x2605;&#x2605;&#x2605;</option>
+                        <option value="5">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</option>
+                    </select>
+                    <input type="hidden" name="product_id" value="{{product.product_id}}">
+                    <button type="submit">Set Filter</button>
+            </form>
+        </div>
+            <div class="review-block">
+                {% if not reviews %}
+                <p>There are no reviews left...</p>
+                {% endif %}
+                {% for review in reviews %}
+                <div class="review">
+                    <h3>Rating: {{review.rating}}/5</h3>
+                    <p><strong>Date:</strong> {{ review.review_date.strftime('%B %d, %Y') }}</p>
+                    <p><strong>{{ review.review_title }}</strong></p>
+                    <p>{{ review.review_desc }}</p>
+                    <hr style="margin: 5px 0;">
+                </div>
+                {% endfor %}
+            </div>
     </div>
 </body>
 {% endblock %}

@@ -102,6 +102,30 @@
     .hero-welcome img {
         width: 150px;
     }
+
+    .review-block {
+        display: flex;
+        flex-direction: column;
+        margin: 20px auto;
+        justify-items: center;
+    }
+
+    .review-block h1 {
+        color: var(--Violet--);
+    }
+
+    .review {
+        display: block;
+        margin: 10px auto 15px auto;
+        width: 50%;
+    }
+
+    hr {
+        display: block;
+        width: 90%;
+        margin: 0 auto;
+        justify-self: center;
+    }
     
 </style>
 {% extends 'base.html' %}
@@ -136,5 +160,18 @@
                 <a href="{{ url_for('register') }}" class="btn btn-ghost">Register</a>
             </div>
         </section>
+        <div class="review-block">
+            <h1>Planted with Love, Reviewed with Joy</h1>
+            <p style="text-align: center;margin: 15px;">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</p>
+                {% for review in reviews %}
+                <div class="review">
+                    <h3>Rating: {{review.rating}}/5</h3>
+                    <p><strong>Date:</strong> {{ review.review_date.strftime('%B %d, %Y') }}</p>
+                    <p><strong>{{ review.review_title }}</strong></p>
+                    <p>{{ review.review_desc }}</p>
+                    <hr style="margin: 5px 0;">
+                </div>
+                {% endfor %}
+            </div>
     </div>
     {% endblock%}

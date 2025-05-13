@@ -1,0 +1,80 @@
+<style>
+    body {
+        background: url(../static/images/chat-bg);
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+  
+    .chat-container {
+        width: 60%;
+        margin: 50px auto;
+        background: var(--pastel-purple--);
+        border-radius: 12px;
+        padding: 30px;
+        position: relative;
+    }
+  
+    h2 {
+        color: var(--Violet--);
+        text-align: center;
+    }
+  
+    .chat-message {
+        background: white;
+        padding: 10px 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  
+    .chat-message strong {
+        color: var(--Potted-Plant--);
+    }
+  
+    textarea {
+        width: 100%;
+        border-radius: 8px;
+        padding: 10px;
+        border: 1px solid #d6d6d6;
+        resize: none;
+    }
+  
+    button {
+        margin-top: 10px;
+        padding: 10px 20px;
+        background: var(--Celadon--);
+        border: none;
+        border-radius: 50px;
+        color: #5b8463;
+        font-weight: bold;
+        cursor: pointer;
+    }
+  
+    button:hover {
+        color: var(--Violet--);
+    }
+  
+  </style>
+  
+  {% extends "base.html" %}
+  {% block content %}
+  <div class="chat-container">
+    <h2>Chat with {{ vendor.first_name }} {{ vendor.last_name }}</h2>
+  
+    <div>
+        {% for msg in messages %}
+        <div class="chat-message">
+            <strong>{{ msg.sender_name }}:</strong> {{ msg.content }}<br>
+            <small>{{ msg.timestamp }}</small>
+        </div>
+        {% endfor %}
+    </div>
+  
+    <hr>
+  
+    <form method="POST">
+        <textarea name="message" rows="3" placeholder="Type your message..." required></textarea><br>
+        <button type="submit">Send</button>
+    </form>
+  </div>
+  {% endblock %}

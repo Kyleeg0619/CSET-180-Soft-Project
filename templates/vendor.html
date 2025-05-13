@@ -7,15 +7,19 @@
     --Celadon--: #d7e7c3;
 }
 
-.vendor_wrapper {
-    min-height: 100vh;
-}
-
-.vendor_container {
+body {
     background-image: url(https://i.pinimg.com/736x/0b/61/f1/0b61f1f87e16785ea935dcf261cb80b3.jpg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+}
+
+.vendor_wrapper {
+    min-height: 100vh;
+    align-content: center;
+}
+
+.vendor_container {
     color: var(--Violet--);
     padding-top: 10px;
     padding-bottom: 80px;
@@ -164,11 +168,6 @@ h2, h3 {
                         <h1 style="padding-top: 40px;">Vendor Dashboard</h1>
                     </div>
                     <div>
-                        <a href="{{ url_for('chat') }}" class="sign-up">
-                            Chat with Customers
-                        </a>
-                    </div>
-                    <div>
                         <a href="{{ url_for('add_product') }}" class="sign-up">
                             Add Product
                         </a>
@@ -184,27 +183,6 @@ h2, h3 {
                         </a>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Reviews section -->
-        <section class="review-section">
-            <img src="../static/images/globe.png" alt="" style="width: 250px;margin: 0 auto;display: block;">
-            <h1>Customer Reviews</h1>
-            <div class="review-boxes">
-                {% if reviews %}
-                    {% for r in reviews %}
-                        <div class="review">
-                            <p><strong>{{ r.username }}</strong> ({{ r.rating }}/5)</p>
-                            <p>{{ r.review_text }}</p>
-                            <p style="font-size: 12px; color: var(--lt-Violet--);">
-                                {{ r.review_date.strftime('%Y-%m-%d') }}
-                            </p>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p style="text-align: center;">No reviews yet.</p>
-                {% endif %}
             </div>
         </section>
     </div>

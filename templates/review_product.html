@@ -75,15 +75,18 @@
 <body>
     <div class="returns">
         <div class="order_info">
-            <h3>Order #{{order.order_id}}</h3>
-            <p><strong>Date:</strong> {{order.order_date.strftime('%B %d, %Y')}}</p>
-            <p><strong>Shipping Address:</strong> {{order.full_name}}</p>
-            <p><strong>Order Status:</strong> {{order.order_status}}</p>
-            <p><strong>Payment Info:</strong> {{order.payment_info}}</p>
-            <p><strong>Total Items:</strong> {{order.total_items}}</p>
+            <p>Product ID: {{product.product_id}}</p>
+            <p>Product Name: {{product.product_name}}</p>
+            <p>Product Description: {{product.product_desc}}</p>
+            {% if product.discount_price %}
+            <p>Price: {{product.discount_price}}</p>
+            {% else %}
+            <p>Price: {{product.original_price}}</p>
+            {% endif %}
+            <p>Vendor: {{product.vendor_username}}</p>
         </div>
         <form method="POST" class="complaint_form">
-            <h1>Review Order</h1>
+            <h1>Review Product</h1>
             <div class="issue">
                 <label for="rating">Rate your experience!</label>
                 <select name="rating" id="rating" required>
@@ -96,6 +99,8 @@
         
             <input type="text" name="review_title" placeholder="Title" required>
         <textarea name="review_desc" placeholder="Description" required></textarea>
+
+        <input type="hidden" name="product_id" value="{{product.product_id}}">
         
             <button type="submit" class="sign-up">Submit Review</button>
         </form>

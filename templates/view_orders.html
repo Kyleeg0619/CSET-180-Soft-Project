@@ -60,6 +60,9 @@
         width: 125px;
     }
 
+    .sign-up {
+        display: inline-block;
+    }
 </style>
 <body>
 <div class="orders-container">
@@ -75,8 +78,10 @@
             <p><strong>Payment Info:</strong> {{ order.payment_info }}</p>
             <p><strong>Total Items:</strong> {{ order.total_items }}</p>
             <input type="hidden" value="{{order.order_id}}">
+                    <a href="{{ url_for('order_details', order_id=order.order_id) }}" class="sign-up" style="text-decoration: none;">Order Details</a>
                     <a href="{{ url_for('complaint', order_id=order.order_id) }}" style="text-decoration: none;">
                     <input type="submit" value="Returns" class="sign-up"></a>
+                    <a href="{{ url_for('review', order_id=order.order_id) }}" class="sign-up">Review Order</a>
         </div>
         {% endfor %}
     {% else %}

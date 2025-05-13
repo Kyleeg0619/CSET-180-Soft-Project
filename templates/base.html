@@ -12,12 +12,14 @@
       <div class="topBar">
           <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
           <h1 class="logo-title">eGarden</h1>
-          
+      
           <ul class="barItem">
             {% if session.get('loggedin') and session.get('user_type') == 'Customer' %}
             <li><a href="/customer">home</a></li>
+            <li><a href="{{ url_for('choose_vendor') }}">chat</a></li>
             {% elif session.get('loggedin') and session.get('user_type') == 'Vendor' %}
             <li><a href="/vendor">home</a></li>
+            <li><a href="{{ url_for('v_chat') }}">chat</a></li>
             {% elif session.get('loggedin') and session.get('user_type') == 'admin' %}
             <li><a href="/admin">home</a></li>
             {% else %}

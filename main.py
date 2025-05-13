@@ -13,7 +13,9 @@ engine = create_engine(conn_str, echo=True)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    with engine.begin() as conn:
+        reviews = conn.execute(text('SELECT * FROM reviews'))
+    return render_template('index.html', reviews=reviews)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -263,11 +265,9 @@ def vendor():
     user_id = session['user_id']
 
     with engine.begin() as conn:
-        reviews = conn.execute(text('SELECT * FROM reviews WHERE vendor_id = :vendor_id'),{'vendor_id':user_id}).fetchall()
-
         products = conn.execute(text('SELECT * FROM products WHERE vendor_username = :username'),{'username':username}).fetchall()
 
-    return render_template('vendor.html', reviews=reviews, products=products, username=username)
+    return render_template('vendor.html', products=products, username=username)
 
 @app.route('/vendor/products/add_product', methods=["GET",'POST'])
 def add_product():
@@ -375,45 +375,6 @@ def edit_product_submit(product_id):
                 'product_id': product_id
             })
             return redirect(url_for('vendor'))
-        
-@app.route('/vendor/chat', methods=['GET', 'POST'])
-def chat():
-    messages = []
-    user_type = None
-
-    if 'username' in session:
-        with engine.begin() as conn:
-            # Get user type
-            user = conn.execute(
-                text("SELECT user_type, user_id FROM users WHERE username = :username"),
-                {'username': session['username']}
-            ).fetchone()
-
-            if user:
-                user_type = user.user_type
-                user_id = user.user_id
-
-                if request.method == 'POST':
-                    content = request.form['message']
-                    conn.execute(
-                        text("""
-                            INSERT INTO chat (user_id, content, timestamp)
-                            VALUES (:user_id, :content, NOW())
-                        """),
-                        {'user_id': user_id, 'content': content}
-                    )
-
-                result = conn.execute(
-                    text("""
-                        SELECT u.username, c.content, c.timestamp
-                        FROM chat c
-                        JOIN users u ON c.user_id = u.user_id
-                        ORDER BY c.timestamp DESC
-                    """)
-                )
-                messages = result.fetchall()
-
-    return render_template('chat.html', messages=messages, user_type=user_type)
 
 @app.route('/handle_product_action', methods=['POST'])
 def handle_product_action():
@@ -552,12 +513,12 @@ def search():
             params['search_query'] = f'%{search_query}%'
 
         if color_filter:
-            sql += ' AND product_color = :color_filter'
-            params['color_filter'] = color_filter
+            sql += ' AND product_color LIKE :color_filter'
+            params['color_filter'] = f'%{color_filter}%'
 
         if size_filter:
-            sql += ' AND product_sizes = :size_filter'
-            params['size_filter'] = size_filter
+            sql += ' AND product_sizes LIKE :size_filter'
+            params['size_filter'] = f'%{size_filter}%'
 
         if stock_filter:
             if stock_filter == 'available':
@@ -574,9 +535,36 @@ def product(product_id):
 # select info from the products table using product id
     with engine.begin() as conn:
         products = conn.execute(text('SELECT * FROM products WHERE product_id =:product_id'),{'product_id':product_id}).fetchone()
-# had to change product_id=product_id to product=product because the page needs all the product info and i was getting error
-    return render_template('product.html', product=products)
 
+        reviews = conn.execute(text('SELECT * FROM product_reviews WHERE product_id = :product_id'),{'product_id':product_id})
+    return render_template('product.html', product=products, reviews=reviews)
+
+@app.route('/filter_review', methods=['GET', 'POST'])
+def filter_review():
+    product_id = request.form['product_id']
+    filter_param = request.form['filter']
+    with engine.begin() as conn:
+        products = conn.execute(text('SELECT * FROM products WHERE product_id = :product_id'),{'product_id':product_id}).fetchone()
+        if filter_param:
+            reviews = conn.execute(text('SELECT * FROM product_reviews WHERE product_id = :product_id AND rating IN (:filter_param)'),{'product_id':product_id,'filter_param':filter_param}).fetchall()
+        else: 
+            reviews = conn.execute(text('SELECT * FROM product_reviews WHERE product_id = :product_id '),{'product_id':product_id}).fetchall()
+    return render_template('product.html',product_id=product_id, product=products, reviews=reviews)
+
+@app.route('/sort_review', methods=['GET','POST'])
+def sort_review():
+    product_id = request.form['product_id']
+    sort_param = request.form['sort']
+    with engine.begin() as conn:
+        products = conn.execute(text('SELECT * FROM products WHERE product_id = :product_id'),{'product_id':product_id}).fetchone()
+        if sort_param:
+            if sort_param == 'rating':
+                reviews = conn.execute(text('SELECT * FROM product_reviews WHERE product_id = :product_id ORDER BY rating DESC;'),{'product_id':product_id}).fetchall()
+            elif sort_param == 'time':
+                reviews = conn.execute(text('SELECT * FROM product_reviews WHERE product_id = :product_id ORDER BY review_date DESC;'),{'product_id':product_id}).fetchall()
+        else: 
+            reviews = conn.execute(text('SELECT * FROM product_reviews WHERE product_id = :product_id '),{'product_id':product_id}).fetchall()
+    return render_template('product.html',product_id=product_id, product=products, reviews=reviews)
 
 
 @app.route('/add_to_cart', methods=['POST'])
@@ -764,7 +752,7 @@ def view_orders():
 
 @app.route('/complaints/<int:order_id>', methods=['GET', 'POST'])
 def complaint(order_id):
-    complaint_validity = ''
+    complaint_validity = 'valid'
     rejected = 'rejected'
 
     with engine.begin() as conn:
@@ -789,18 +777,22 @@ def complaint(order_id):
             print(product_list)
             for product_id in product_list:
                 warranty = conn.execute(text('SELECT product_warranty FROM products WHERE product_id = :product_id'),{'product_id':product_id}).fetchone()
-                print(warranty)
-                warranty_str = warranty[0]
-                print(warranty_str)
-                print(complaint_date)
 
-                if warranty_str < complaint_date and complaint_demand == 'warranty':
+                warranty_str = warranty[0]
+            
+                order_date =  order.order_date
+                return_deadline = order_date + datetime.timedelta(days=7)
+
+                if warranty_str and warranty_str < complaint_date and complaint_demand == 'warranty':
+                    complaint_validity = 'invalid'
+                    break
+                elif return_deadline.date() < complaint_date:
                     complaint_validity = 'invalid'
                     break
                 else:
                     complaint_validity = 'valid'
 
-                if complaint_validity == 'valid':
+            if complaint_validity == 'valid':
                     conn.execute(
                     text('''
                         INSERT INTO complaints (
@@ -820,7 +812,7 @@ def complaint(order_id):
                         'complaint_demand': complaint_demand
                     }
                 )
-                elif complaint_validity == 'invalid':
+            elif complaint_validity == 'invalid':
                     conn.execute(
                     text('''
                         INSERT INTO complaints (
@@ -888,8 +880,189 @@ def complaints_rejected():
     return redirect(url_for('complaint_status'))
 # *** END OF CUSTOMER FUNCTIONALITY ***
 
+@app.route('/review/<int:order_id>', methods=['GET', 'POST'])
+def review(order_id):
+    with engine.connect() as conn:
+        order = conn.execute(text('SELECT * FROM orders WHERE order_id = :order_id'),{'order_id':order_id}).fetchone()
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        rating = int(request.form['rating'])
+        review_title = request.form['review_title']
+        review_desc = request.form['review_desc']
+        review_date = datetime.datetime.now()
+
+        sql = """
+            INSERT INTO reviews (user_id, rating, review_title, review_desc, review_date)
+            VALUES (:user_id, :rating, :review_title, :review_desc, :review_date)
+        """
+
+        with engine.connect() as conn:
+            conn.execute(text(sql), {
+                'user_id': user_id,
+                'rating': rating,
+                'review_title': review_title,
+                'review_desc': review_desc,
+                'review_date': review_date
+            })
+            conn.commit() 
+
+        return redirect(url_for('view_orders'))
+
+    return render_template('review.html', order=order)
+
+@app.route('/review_product/<int:product_id>', methods=['GET', 'POST'])
+def review_product(product_id):
+    with engine.begin() as conn:
+        product = conn.execute(text('SELECT * FROM products WHERE product_id = :product_id'),{'product_id':product_id}).fetchone()
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        rating = int(request.form['rating'])
+        review_title = request.form['review_title']
+        review_desc = request.form['review_desc']
+        review_date = datetime.datetime.now()
+
+        sql = """
+            INSERT INTO product_reviews (user_id, rating, product_id, review_title, review_desc, review_date)
+            VALUES (:user_id, :rating, :product_id, :review_title, :review_desc, :review_date)
+        """
+
+        with engine.connect() as conn:
+            conn.execute(text(sql), {
+                'user_id': user_id,
+                'rating': rating,
+                'product_id':product_id,
+                'review_title': review_title,
+                'review_desc': review_desc,
+                'review_date': review_date
+            })
+            conn.commit() 
+
+        return redirect(url_for('view_orders'))
+
+    return render_template('review_product.html', product=product)
 
 
+@app.route('/view_reviews/')
+def view_reviews():
+    user_id = session['user_id']
+    
+    sql  = """
+        SELECT *
+        FROM reviews 
+        WHERE user_id = :user_id
+        ORDER BY review_date DESC
+    """
+    with engine.connect() as conn:
+        result = conn.execute(text(sql), {'user_id': user_id})
+        reviews = result.fetchall()
+    return render_template('view_reviews.html', reviews=reviews)
+
+# """ CHAT FUNCTIONALITY """
+# Customer
+@app.route('/choose_vendor')
+def choose_vendor():
+    with engine.connect() as conn:
+        vendors = conn.execute(text("SELECT * FROM users WHERE user_type = 'vendor'")).fetchall()
+    return render_template('choose_vendor.html', vendors=vendors)
+
+@app.route('/c_chat/<int:user_id>', methods=['GET', 'POST'])
+def c_chat(user_id):
+    customer_id = session['user_id']
+    vendor_id = user_id
+
+    if request.method == 'POST':
+        message = request.form.get('message')
+        if message:
+            query = text("""
+                INSERT INTO chat (sender_id, recipient_id, content, timestamp)
+                VALUES (:sender_id, :recipient_id, :content, :timestamp)
+            """)
+            with engine.connect() as conn:
+                
+                conn.execute(query, {
+                    'sender_id': customer_id,
+                    'recipient_id': vendor_id,
+                    'content': message,
+                    'timestamp': datetime.datetime.now()
+                })
+               
+                conn.commit()  
+
+        return redirect(url_for('choose_vendor', user_id=vendor_id))
+
+    with engine.connect() as conn:
+        messages = conn.execute(text("""
+            SELECT chat.*, u.first_name AS sender_name
+            FROM chat
+            JOIN users u ON chat.sender_id = u.user_id
+            WHERE (sender_id = :customer AND recipient_id = :vendor)
+               OR (sender_id = :vendor AND recipient_id = :customer)
+            ORDER BY timestamp
+        """), {'customer': customer_id, 'vendor': vendor_id}).fetchall()
+
+        vendor = conn.execute(text("SELECT * FROM users WHERE user_id = :id"), {'id': vendor_id}).fetchone()
+
+    return render_template('c_chat.html', messages=messages, vendor=vendor)
+
+# Vendor
+@app.route('/vendor/v_chat')
+def v_chat(): 
+    vendor_id = session.get('user_id')
+
+    query = text('''
+        SELECT chat.id,
+               chat.sender_id,
+               chat.recipient_id,
+               chat.content,
+               chat.timestamp,
+               sender.username AS sender_username,
+               recipient.username AS recipient_username
+        FROM egarden.chat AS chat
+        JOIN users AS sender ON chat.sender_id = sender.user_id
+        JOIN users AS recipient ON chat.recipient_id = recipient.user_id
+        WHERE chat.recipient_id = :vendor_id
+    ''')
+
+    with engine.connect() as connection:
+        result = connection.execute(query, {'vendor_id': vendor_id})
+        messages = result.fetchall()
+
+    return render_template('v_chat.html', messages=messages) 
+
+@app.route('/reply', methods=['POST'])
+def reply():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  
+
+    sender_id = session['user_id'] 
+    recipient_id = request.form['recipient_id']
+    content = request.form['reply_content']
+    timestamp = datetime.datetime.now()
+
+    with engine.begin() as conn:
+        conn.execute(text("""
+            INSERT INTO chat (sender_id, recipient_id, content, timestamp)
+            VALUES (:sender_id, :recipient_id, :content, :timestamp)
+        """), {
+            'sender_id': sender_id,
+            'recipient_id': recipient_id,
+            'content': content,
+            'timestamp': timestamp
+        })
+
+    return redirect(url_for('v_chat')) 
+
+@app.route('/order_details/<int:order_id>',methods=['GET','POST'])
+def order_details(order_id):
+    with engine.begin() as conn:
+        order = conn.execute(text('SELECT * FROM orders WHERE order_id = :order_id'),{'order_id':order_id}).fetchone()
+
+        item_ids = [int(i) for i in order.item_list.split(',') if i.strip().isdigit()]
+
+        product_list = conn.execute(text('SELECT * FROM products WHERE product_id IN :list_items'),{'list_items':tuple(item_ids)}).fetchall()
+    return render_template('order_details.html',order=order, product_list=product_list)
 
 
 # *** Run & Debug ***

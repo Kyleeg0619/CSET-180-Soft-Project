@@ -81,8 +81,6 @@
         <img src="../static/images/return.PNG" alt="" width="150%" style="margin-left: -50%;">
     </div>
     <form method="POST" action="/complaints/{{ order.order_id }}" class="complaint_form">
-        <input type="text" name="complaint_title" placeholder="Title" required>
-        <textarea name="complaint_desc" placeholder="Description" required></textarea>
         <div class="issue">
             <label for="complaint_demand">Issue Type:</label>
             <select name="complaint_demand" required>
@@ -91,6 +89,8 @@
                 <option value="warranty">Warranty Claim</option>
             </select>
         </div>
+        <input type="text" name="complaint_title" placeholder="Title" required>
+        <textarea name="complaint_desc" placeholder="Description" required></textarea>
         <input type="hidden" name="order_date" value="{{order.order_date.strftime('%B %d, %Y')}}">
         <button type="submit" class="sign-up">Submit</button>
     </form>

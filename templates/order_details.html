@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    body{
+        background: url(../static/images/moon-bkg.png);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .orders-container {
+        position: relative;
+        background: #fff;
+        padding: 30px;
+        width: 80%;
+        margin: 100px auto;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .orders-title {
+        font-size: 32px;
+        text-align: center;
+        margin-bottom: 25px;
+        color: var(--Violet--, #8c5383);
+    }
+
+    .order_items h2 {
+        font-size: 25px;
+        text-align: center;
+        margin-bottom: 25px;
+        color: var(--Violet--);
+    }
+
+    .item {
+        display: flex;
+        align-items: center;
+        justify-content: right;
+    }
+
+</style>
+
+<div class="orders-container">
+    <div class="order_summary">
+        <h1 class="orders-title">Order Summary</h1>
+                <p>Order ID: {{ order.order_id }}</p>
+                <p>User ID: {{ order.user_id }}</p>
+                <p>Full Name: {{ order.full_name }}</p>
+                <p>Address: {{ order.address }}</p>
+                <p>Payment Info: {{ order.payment_info }}</p>
+                <p>Order Date: {{ order.order_date }}</p>
+                <p>Total Items: {{ order.total_items }}</p>
+                <p><strong>Order Status: {{ order.order_status }}</strong></p>
+    </div>
+    <div class="order_items">
+        <h2>Order Details</h2>
+        {% for product in product_list %}
+        <div class="item">
+            <img src="../static/images/sprout.PNG" alt="" width="100px">
+            <div>
+                <p>Product ID: {{product.product_id}}</p>
+                <p>Product Name: {{product.product_name}}</p>
+                <p>Product Description: {{product.product_desc}}</p>
+                {% if product.discount_price %}
+                <p>Price: {{product.discount_price}}</p>
+                {% else %}
+                <p>Price: {{product.original_price}}</p>
+                {% endif %}
+                <p>Vendor: {{product.vendor_username}}</p>
+            </div>
+            <a href="{{ url_for('review_product',product_id=product.product_id) }} "
+            style="margin: 0 20px 0 auto;"
+            class="sign-up">Review Product</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    body{
+        background: url(../static/images/moon-bkg.png);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .reviews-container {
+        align-self: center;
+        position: relative;
+        background: #fff;
+        padding: 30px;
+        width: 80%;
+        margin: 100px auto;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .review-title {
+        font-size: 32px;
+        text-align: center;
+        margin-bottom: 25px;
+        color: var(--Violet--, #8c5383);
+    }
+
+    .review-box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 15px;
+        background-color: var(--pastel-purple--, #ffedfc);
+    }
+
+    .review-box h3 {
+        margin-top: 0;
+        color: #333;
+    }
+
+    .order-box p {
+        margin: 8px 0;
+    }
+
+    .sign-up {
+        margin: 0;
+    }
+
+    .sign-up {
+        display: inline-block;
+    }
+</style>
+<body>
+<div class="reviews-container">
+    <h1 class="reviews-title">Your Past Reviews</h1>
+
+    {% if reviews %}
+        {% for review in reviews %}
+        <div class="review-box">
+            <h3>Rating: {{review.rating}}/5</h3>
+            <p><strong>Date:</strong> {{ review.review_date.strftime('%B %d, %Y') }}</p>
+            <p><strong>{{ review.review_title }}</strong></p>
+            <p>{{ review.review_desc }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align:center;">No reviews submitted yet.</p>
+    {% endif %}
+</div>
+</body>
+{% endblock %}
